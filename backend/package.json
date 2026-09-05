@@ -10,7 +10,7 @@
     "dev:workers:notification": "tsx watch src/workers/notificationWorker.ts",
     "dev:workers:purge": "tsx watch src/workers/purgeWorker.ts",
     "dev:workers:expiration": "tsx watch src/workers/expirationWorker.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "start:worker": "node dist/worker.js",
     "test": "jest --maxWorkers=2",

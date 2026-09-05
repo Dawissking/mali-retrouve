@@ -4,7 +4,7 @@ import { verifyAccessToken } from '../lib/jwt';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 
-export type RequiredRole = UserRole | 'PUBLIC';
+export type RequiredRole = UserRole | 'PUBLIC' | UserRole[];
 
 export function authMiddleware(requiredRole: RequiredRole = 'PUBLIC') {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -36,8 +36,8 @@ export function authMiddleware(requiredRole: RequiredRole = 'PUBLIC') {
 
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      include: { 
-        citizenProfile: { include: { region: true, cercle: true, commune: true } }, 
+      include: {
+        citizenProfile: { include: { region: true, cercle: true, commune: true } },
         agentProfile: true,
       },
     });
@@ -71,7 +71,8 @@ export function authMiddleware(requiredRole: RequiredRole = 'PUBLIC') {
 
     if (requiredRole !== 'PUBLIC') {
       const authUser = (req as any).user;
-      if (!authUser || !isAuthorized(authUser.role, requiredRole)) {
+      const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+      if (!authUser || !isAuthorized(authUser.role, allowedRoles)) {
         logger.warn({ userId: user.id, role: user.role, required: requiredRole }, 'Authorization denied');
         return res.status(403).json({
           error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
@@ -97,9 +98,7 @@ function extractToken(req: Request): string | null {
   return null;
 }
 
-function isAuthorized(userRole: UserRole, requiredRole: RequiredRole): boolean {
-  if (requiredRole === 'PUBLIC') return true;
-
+function isAuthorized(userRole: UserRole, requiredRoles: UserRole[]): boolean {
   const roleHierarchy: Record<UserRole, number> = {
     CITIZEN: 1,
     AGENT: 2,
@@ -110,7 +109,7 @@ function isAuthorized(userRole: UserRole, requiredRole: RequiredRole): boolean {
     TECH_ADMIN: 5,
   };
 
-  const requiredLevel = roleHierarchy[requiredRole as UserRole] ?? 0;
+  const requiredLevel = Math.min(...requiredRoles.map(r => roleHierarchy[r] ?? 0));
   const userLevel = roleHierarchy[userRole] ?? 0;
 
   return userLevel >= requiredLevel;

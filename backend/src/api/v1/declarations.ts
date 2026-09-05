@@ -37,6 +37,8 @@ const declarationSchema = z.object({
   })).max(5, 'Maximum 5 photos').optional(),
 });
 
+type DeclarationCreateInput = z.infer<typeof declarationSchema>;
+
 const transitionSchema = z.object({
   event: z.enum([
     'SUBMIT', 'TRIGGER_MATCHING', 'MATCH_FOUND', 'ASSIGN_TO_AGENT',
@@ -52,7 +54,7 @@ router.use(authMiddleware('CITIZEN'));
 // POST /declarations — Create a declaration (BROUILLON)
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const data = declarationSchema.parse(req.body);
+    const data: DeclarationCreateInput = declarationSchema.parse(req.body);
     const userId = req.user!.id;
     const correlationId = req.correlationId || uuidv4();
 
@@ -80,16 +82,16 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         documentNumber: data.documentNumber ?? null,
         documentNumberHash: data.documentNumber
-          ? crypto.createHash('sha256').update(data.documentNumber).digest('hex')
+          ? crypto.createHash('sha256').update(data.documentNumber as string).digest('hex')
           : null,
-        lossDate: data.type === 'LOSS' ? new Date(data.eventDate) : null,
+        lossDate: data.type === 'LOSS' ? new Date(data.eventDate as string) : null,
         lossLocationLat: data.locationLat ?? null,
         lossLocationLng: data.locationLng ?? null,
         lossLocationDesc: data.locationDesc ?? null,
         lossRegionId: data.regionId,
         lossCercleId: data.cercleId,
         lossCommuneId: data.communeId,
-        findDate: data.type === 'FOUND' ? new Date(data.eventDate) : null,
+        findDate: data.type === 'FOUND' ? new Date(data.eventDate as string) : null,
         findRegionId: data.type === 'FOUND' ? data.regionId : null,
         findCercleId: data.type === 'FOUND' ? data.cercleId : null,
         findCommuneId: data.type === 'FOUND' ? data.communeId : null,

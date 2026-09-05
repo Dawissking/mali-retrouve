@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 const router = Router();
 
 // --- Stats ---
-router.get('/stats', authMiddleware('REGIONAL_ADMIN', 'NATIONAL_ADMIN', 'AUDITOR'), async (_req: Request, res: Response) => {
+router.get('/stats', authMiddleware(['REGIONAL_ADMIN', 'NATIONAL_ADMIN', 'AUDITOR']), async (_req: Request, res: Response) => {
   const stats = await prisma.$transaction(async (tx) => {
     const declarations = await tx.declaration.groupBy({
       by: ['status'],
