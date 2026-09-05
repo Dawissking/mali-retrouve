@@ -1,0 +1,36 @@
+{
+  "name": "mali-retrouve",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "webapp",
+    "tests-e2e"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "db:push": "cd backend && npx prisma db push",
+    "db:generate": "cd backend && npx prisma generate",
+    "db:seed": "cd backend && npx prisma db seed",
+    "docker:up": "podman-compose up -d",
+    "docker:down": "podman-compose down",
+    "docker:config": "podman-compose config",
+    "docker:logs": "podman-compose logs -f"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "argon2@0.41.1": true
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  }
+}

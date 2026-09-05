@@ -1,0 +1,130 @@
+﻿---
+
+# MALI RETROUVÉ — Audit Sécurité & Conformité Données
+
+> **Document de cadrage sécurité — niveau senior auditor**
+> Plateforme nationale d'objets et documents perdus/trouvés (Mali)
+> Auteur : Security Specialist · Date : 02/09/2026
+> Périmètre : 07 (Gestion des données), 08 (Sécurité), 09 (Réglementation), 16 (Menaces & abus)
+> Convention de lecture : FAIT / SOURCE / DÉDUCTION / RECOMMANDATION / HYPOTHÈSE / DÉCISION À PRENDRE / POINT À VÉRIFIER
+
+> ⚠️ **Contrainte d'audit** : ce document est livré en **lecture seule** dans le chat. Pour des raisons de politique d'audit (intégrité du référentiel), le fichier `security-auditor.md` **doit être copié-collé manuellement** dans `D:\Projet_MALI_TROUVE\01_CONCEPTION\.drafts\specialists\security-auditor.md` avec encodage **UTF-8** (gestion des accents `é à ç ô û`). Ne pas modifier le contenu lors de la copie.
+
+---
+
+## 07 — Gestion des données
+
+### 7.1 Classification des données
+
+| Catégorie | Données concernées | Sensibilité | Espace d'accès |
+|---|---|---|---|
+| **Données publiques** | Statistiques agrégées, FAQ, catégories d'objets, formulaires d'aide | Publique | Tout espace |
+| **Données privées (citoyen)** | Photo du déclarant (optionnelle), courte description personnelle, photo de l'objet trouvé | Privée | Citoyen (propriétaire) |
+| **Données d'identité (sensibles)** | NNI/NINA, N° CNI, N° passeport, N° permis, N° carte grise, N° matricule diplôme, IMEI téléphone, date de naissance | **Sensible** | Citoyen (propriétaire) + Agent mandaté + Administration |
+| **Coordonnées (privées)** | Téléphone, email, adresse, point de rencontre préféré | Privée | Citoyen (propriétaire) + Agent mandaté (uniquement sur demande de restitution) |
+| **Données de correspondance** | Paires candidatées, score de similarité, identité du trouveur, journal de rapprochement | **Sensible** | Matching interne + Agent + Administration (lecture restreinte) |
+| **Données agent-restricted** | Pièces d'identité scannées, photos HD, preuves de propriété, conversations avec propriétaire, secrets MFA | **Sensible — agent** | Agent du centre mandaté (RBAC strict) + Auditeur (lecture) |
+| **Données admin-restricted** | Logs d'accès privilégié, configuration plateforme, clés API, exports massifs, paramètres de scoring | **Sensible — admin** | Admin + DPO + Auditeur (lecture seule) |
+| **Données d'audit (immuables)** | Tout événement de sécurité, accès, modification, suppression, export | **Sensible — intégrité** | Auditeur + DPO + Admin (lecture) |
+
+**FAIT** — micati.site/cni traite déjà NNI, CNI, nom, téléphone, email avec HMAC-SHA256 (cf. product-analyst.md).
+**DÉDUCTION** — L'extension nationale ajoute 7 nouveaux types de documents sensibles (NINA, passeport, permis, carte grise, diplôme, badge, IMEI) exigeant le même niveau de protection que la CNI, voire renforcé pour le passeport (dimension internationale) et la carte grise (dimension patrimoniale).
+**POINT À VÉRIFIER** — Statut juridique exact des pièces d'identité scannées : relèvent-elles des « données sensibles » au sens de la Loi 2013-015 (biométrie, santé, opinions…) ou des « données à caractère personnel » ordinaires ? — **À VÉRIFIER JURIDIQUEMENT**.
+**POINT À VÉRIFIER** — Le HMAC-SHA256 actuel utilise-t-il une clé secrète serveur ? Si oui, compromission = réversibilité de tous les hashs par dictionnaire NNI malien (taille de l'espace NNI : **À VÉRIFIER** auprès de l'ANINF/DNI).
+
+### 7.2 Chiffrement
+
+**7.2.1 En transit**
+- **RECOMMANDATION** : TLS 1.3 obligatoire (fallback TLS 1.2 anciens Android), HSTS activé + preload si possible, certificate pinning pour l'app mobile native (si développée).
+- **SOURCE** : OWASP TLS Cheat Sheet ; recommandations ANSSI équivalentes.
+- **FAIT** — L'absence de TLS = interception NNI/téléphone/OTP → violation caractérisée du Code pénal malien 2024 art. 322-9 à 322-30 (**À VÉRIFIER JURIDIQUEMENT** sur la référence exacte).
+
+**7.2.2 Au repos — stratégie défense en profondeur**
+
+| Couche | Mécanisme | Justification |
+|---|---|---|
+| Infrastructure | Chiffrement disque AES-256 (LUKS / cloud-managed) | Base |
+| Base de données | TDE + chiffrement colonne pour identifiants | Recherche sécurisée |
+| Applicatif | **AES-256-GCM** pour NNI, N° CNI, N° passeport, N° permis, N° carte grise, N° matricule diplôme, téléphone | Defense-in-depth |
+| Hash pour recherche | **HMAC-SHA256** (sel par enregistrement) ou SHA-256 salé — **JAMAIS MD5/SHA-1** | Rapprochement sans divulgation |
+| Photos / pièces jointes | AES-256-GCM par type de document | Anti-EXIF + chiffrement |
+| Backups | AES-256, clé distincte de la prod, rotation trimestrielle | Résilience |
+
+**DÉDUCTION** — Le HMAC-SHA256 actuel de micati.site/cni est déterministe : il permet la comparaison d'égalité sans révéler le NNI en clair. Cette **propriété de rapprochement** doit être préservée lors de la migration (cf. §11 de l'architecte).
+**RECOMMANDATION** — Chiffrement applicatif au-dessus du chiffrement cloud (BYOK / HSM local), cf. §11.5 de l'architecte.
+
+**7.2.3 Gestion des clés**
+- **RECOMMANDATION** — KMS / HSM dédié, séparation par environnement (dev / staging / prod), rotation annuelle minimum, **jamais de clé dans le code ni dans les logs**, séparation des rôles (key admin ≠ data admin ≠ app admin).
+
+### 7.3 Rétention
+
+| Type de donnée | Rétention active | Archivage | Suppression | Justification |
+|---|---|---|---|---|
+| Déclaration (perte/trouvaille) sans match | **18 mois** (vs 12 mois actuels) — notification J-30/J-7 | Aucun | Automatique | DÉDUCTION (couvre le délai rural) |
+| Déclaration matchée, restitution OK | 24 mois après restitution | 60 mois WORM | Manuelle après audit | DÉDUCTION (prescription recel) |
+| Déclaration matchée, restitution refusée / fraude | 60 mois WORM | — | Décision DPO | DÉDUCTION |
+| Photos / pièces jointes | Liée à la déclaration | — | Avec la déclaration | DÉDUCTION |
+| Logs d'audit | 60 mois (5 ans) | WORM | — | DÉDUCTION (alignement prescription pénale) |
+| Logs d'accès plateforme | 12 mois | 24 mois | — | OWASP |
+| Backups | 90 jours glissants | — | Auto | DÉDUCTION |
+| Compte inactif | 24 mois après dernière connexion | — | Auto + notif J-30/J-7 | DÉDUCTION |
+| OTP / tokens MFA |5–10 min | — | Auto | RFC 6238 |
+| Cookies session | 30 min (citoyen), 15 min (agent), 5 min (admin) | — | Auto | DÉDUCTION |
+
+**POINT À VÉRIFIER** — La Loi 2013-015 fixe-t-elle une durée maximale de conservation des données à caractère personnel au Mali ? Si oui, alignement impératif ; sinon, justification par finalité (**À VÉRIFIER JURIDIQUEMENT**).
+**DÉCISION À PRENDRE** — 12 mois est-il suffisant pour le déclarant en zone rurale ? **RECOMMANDATION** : passer à 18 mois pour les déclarations non matchées avec notification au déclarant J-30 et J-7 avant purge.
+
+### 7.4 Archivage
+
+- **RECOMMANDATION** — Archivage WORM (Write Once Read Many) sur stockage objet dédié (S3 Object Lock, Azure Blob Immutable…) pour : logs d'audit > 12 mois ; dossiers de restitution clôturés ; dossiers de fraude avérée.
+- **FAIT** — micati.site/cni ne pratique pas d'archivage formel aujourd'hui (**POINT À VÉRIFIER** par lecture du code).
+
+### 7.5 Suppression (droit à l'oubli / Loi 2013-015)
+
+- **RECOMMANDATION** — Processus en 3 niveaux :
+  1. **Suppression logique** (flag `is_purged`, hors recherche) — immédiate, à la demande citoyen.
+  2. **Suppression physique** (purge BDD, anonymisation photos, effacement stockage objet) — sous 30 jours.
+  3. **Purge backups** — sous 90 jours (cycle de rotation).
+- **Exceptions** documentées dans la politique de confidentialité : dossier de fraude en cours d'instruction judiciaire (jusqu'à prescription) ; données comptables 10 ans ; logs d'audit de la suppression elle-même (60 mois).
+- **SOURCE** — Loi 2013-015, droit à l'effacement (article exact **À VÉRIFIER JURIDIQUEMENT**).
+
+### 7.6 Anonymisation
+
+| Donnée | Technique |
+|---|---|
+| Statistiques publiques | Agrégation k-anonyme (k≥10) |
+| Recherche de doublons interne | Pseudonymisation (hash + sel) |
+| Tests / dev | Données synthétiques ou masquées par regex |
+| Audit post-purge | Conservation uniquement des empreintes (qui/quand/pourquoi) |
+
+**POINT À VÉRIFIER** — micati.site/cni exporte-t-il des données vers Wave (dons) ? Si oui, quelles données transitent ? **À VÉRIFIER** avant extension.
+
+---
+
+## 08 — Sécurité
+
+### 8.1 Tableau de synthèse des contrôles
+
+| Domaine | Contrôle | micati.site/cni (FAIT/À VÉRIFIER) | Recommandation MALI RETROUVÉ |
+|---|---|---|---|
+| Authentification | Mot de passe | Hachage bcrypt/argon2 ? (**À VÉRIFIER**) | Argon2id, min 12 caractères, MFA pour tous comptes internes |
+| | OTP SMS | Oui | Maintenu + TOTP en option |
+| | MFA TOTP | Non | **Obligatoire** agent, admin, auditeur |
+| | WebAuthn / passkeys | Non | Recommandé v2 (citoyen) |
+| | Session timeout | **À VÉRIFIER** | 30 min sliding citoyen / 15 min agent / 5 min admin |
+| Autorisation | RBAC | Probablement rôle unique | RBAC 4 niveaux (citoyen / agent / responsable / admin) + ABAC pour contextes sensibles |
+| | Moindre privilège | — | Aucun accès cross-centre par défaut |
+| | Séparation des tâches | — | 4 yeux pour restitution (agent1 vérifie, responsable confirme) |
+| Chiffrement | TLS | **À VÉRIFIER** | TLS 1.3, HSTS, pinning mobile |
+| | Au repos | HMAC-SHA256 NNI | HMAC + chiffrement colonne pour tout identifiant |
+| | Pièces jointes | Stockage en clair ? (**À VÉRIFIER**) | AES-256-GCM, URL signée éphémère |
+| Audit | Logs d'accès | **À VÉRIFIER** | Append-only WORM, 60 mois |
+| | Logs métier | **À VÉRIFIER** | Tous événements sensibles audités |
+| | Corrélation | — | correlation_id par requête distribuée |
+| Anti-abuse | Rate limiting | **À VÉRIFIER** | Par IP, par compte, par téléphone (OTP), par déclaration |
+| | CAPTCHA | **À VÉRIFIER** | Sur déclaration publique, invisible reCAPTCHA v3 |
+| | Anti-énumération | — | Réponses uniformes, latence constante, IDs non-séquentiels (UUIDv7) |
+| | Honeypot | — | Champs invisibles pour piéger bots |
+| Photos | Anti-download massif | — | URLs signées éphémères, watermarking dissuasif, rate limit dédié |
+| | Anti-EXIF leak | — | Strip EXIF au moment de l'upload (système) |
+| Backups | Fréquence | **À VÉRIFIER** | Quotidien,

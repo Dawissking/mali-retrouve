@@ -1,0 +1,637 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(uuid()) @db.Uuid
+  phoneHash      String?         @unique @db.VarChar(255)
+  phoneE164      String?         @unique @db.VarChar(20)
+  email          String?         @unique @db.VarChar(255)
+  emailVerified  Boolean         @default(false)
+  passwordHash   String          @db.VarChar(255)
+  role           UserRole        @default(CITIZEN)
+  mfaEnabled     Boolean         @default(false)
+  totpSecret     String?         @db.VarChar(255)
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  agentProfile   AgentProfile?
+  auditLog       AuditLog[]
+  citizenProfile CitizenProfile?
+  consent        Consent[]
+  incident       Incident[]
+  notification   Notification[]
+  session        Session[]
+}
+
+model CitizenProfile {
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String        @unique @db.Uuid
+  firstName    String        @db.VarChar(100)
+  lastName     String        @db.VarChar(100)
+  birthDate    DateTime
+  cniHash      String?       @db.VarChar(255)
+  cniMasked    String?       @db.VarChar(50)
+  regionId     String        @db.Uuid
+  cercleId     String        @db.Uuid
+  communeId    String        @db.Uuid
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  cercle       Cercle        @relation(fields: [cercleId], references: [id])
+  commune      Commune       @relation(fields: [communeId], references: [id])
+  region       Region        @relation(fields: [regionId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  declarations Declaration[]
+  restitutions Restitution[]
+}
+
+model AgentProfile {
+  id                String        @id @default(uuid()) @db.Uuid
+  userId            String        @unique @db.Uuid
+  centerId          String        @db.Uuid
+  employeeId        String?       @db.VarChar(50)
+  hireDate          DateTime?
+  isActive          Boolean       @default(true)
+  canValidate       Boolean       @default(true)
+  canDoubleValidate Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  center            Center        @relation(fields: [centerId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
+  evidences         Evidence[]    @relation("EvidenceAgent")
+  restitutions      Restitution[] @relation("RestitutionAgent")
+  validations       Validation[]
+}
+
+model Category {
+  id           String            @id @default(uuid()) @db.Uuid
+  code         String            @unique @db.VarChar(20)
+  labelFr      String            @db.VarChar(50)
+  nature       DeclarationNature
+  declarations Declaration[]
+  domains      Domain[]
+}
+
+model Domain {
+  id           String        @id @default(uuid()) @db.Uuid
+  code         String        @db.VarChar(30)
+  labelFr      String        @db.VarChar(50)
+  categoryId   String        @db.Uuid
+  declarations Declaration[]
+  category     Category      @relation(fields: [categoryId], references: [id])
+  types        Type[]        @relation("DomainTypes")
+
+  @@unique([categoryId, code])
+}
+
+model Type {
+  id           String        @id @default(uuid()) @db.Uuid
+  code         String        @db.VarChar(50)
+  labelFr      String        @db.VarChar(100)
+  domainId     String        @db.Uuid
+  isSensitive  Boolean       @default(false)
+  declarations Declaration[] @relation("DeclarationTypes")
+  domain       Domain        @relation("DomainTypes", fields: [domainId], references: [id])
+
+  @@unique([domainId, code])
+}
+
+model Region {
+  id              String           @id @default(uuid()) @db.Uuid
+  code            String           @unique @db.VarChar(10)
+  labelFr         String           @db.VarChar(100)
+  population      Int?
+  centers         Center[]
+  cercles         Cercle[]
+  citizenProfiles CitizenProfile[]
+}
+
+model Cercle {
+  id              String           @id @default(uuid()) @db.Uuid
+  code            String           @db.VarChar(10)
+  labelFr         String           @db.VarChar(100)
+  regionId        String           @db.Uuid
+  centers         Center[]
+  region          Region           @relation(fields: [regionId], references: [id])
+  citizenProfiles CitizenProfile[]
+  communes        Commune[]
+
+  @@unique([regionId, code])
+}
+
+model Commune {
+  id              String           @id @default(uuid()) @db.Uuid
+  code            String           @db.VarChar(10)
+  labelFr         String           @db.VarChar(100)
+  cercleId        String           @db.Uuid
+  centers         Center[]
+  citizenProfiles CitizenProfile[]
+  cercle          Cercle           @relation(fields: [cercleId], references: [id])
+  villages        Village[]
+
+  @@unique([cercleId, code])
+}
+
+model Village {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @db.VarChar(10)
+  labelFr   String   @db.VarChar(100)
+  communeId String   @db.Uuid
+  latitude  Float?
+  longitude Float?
+  centers   Center[]
+  commune   Commune  @relation(fields: [communeId], references: [id])
+
+  @@unique([communeId, code])
+}
+
+model Center {
+  id           String         @id @default(uuid()) @db.Uuid
+  name         String         @db.VarChar(200)
+  address      String         @db.VarChar(500)
+  type         String         @db.VarChar(50)
+  latitude     Float?
+  longitude    Float?
+  regionId     String         @db.Uuid
+  cercleId     String         @db.Uuid
+  communeId    String         @db.Uuid
+  villageId    String?        @db.Uuid
+  capacity     Int?
+  timezone     String?        @db.VarChar(50)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  agents       AgentProfile[]
+  cercle       Cercle         @relation(fields: [cercleId], references: [id])
+  commune      Commune        @relation(fields: [communeId], references: [id])
+  region       Region         @relation(fields: [regionId], references: [id])
+  village      Village?       @relation(fields: [villageId], references: [id])
+  declarations Declaration[]
+  restitutions Restitution[]
+}
+
+model Declaration {
+  id                 String                  @id @default(uuid()) @db.Uuid
+  type               DeclarationType
+  nature             DeclarationNature
+  citizenId          String?                 @db.Uuid
+  finderPhoneHash    String?                 @db.VarChar(255)
+  finderPhoneE164    String?                 @db.VarChar(20)
+  categoryId         String                  @db.Uuid
+  domainId           String                  @db.Uuid
+  typeId             String                  @db.Uuid
+  description        String
+  documentNumber     String?                 @db.VarChar(100)
+  documentNumberHash String?                 @db.VarChar(255)
+  lossDate           DateTime?
+  lossLocationLat    Float?
+  lossLocationLng    Float?
+  lossLocationDesc   String?                 @db.VarChar(500)
+  lossRegionId       String?                 @db.Uuid
+  lossCercleId       String?                 @db.Uuid
+  lossCommuneId      String?                 @db.Uuid
+  findDate           DateTime?
+  findLocationLat    Float?
+  findLocationLng    Float?
+  findLocationDesc   String?                 @db.VarChar(500)
+  findRegionId       String?                 @db.Uuid
+  findCercleId       String?                 @db.Uuid
+  findCommuneId      String?                 @db.Uuid
+  status             DeclarationStatus       @default(BROUILLON)
+  draftStatus        DraftCancellationStatus @default(ACTIVE)
+  trackingNumber     String?                 @unique @db.VarChar(50)
+  trackingPrefix     String?                 @db.VarChar(10)
+  consentId          String                  @db.Uuid
+  centerId           String?                 @db.Uuid
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  submittedAt        DateTime?
+  closedAt           DateTime?
+  auditLogs          AuditLog[]
+  category           Category                @relation(fields: [categoryId], references: [id])
+  center             Center?                 @relation(fields: [centerId], references: [id])
+  citizen            CitizenProfile?         @relation(fields: [citizenId], references: [id])
+  consent            Consent                 @relation(fields: [consentId], references: [id])
+  domain             Domain                  @relation(fields: [domainId], references: [id])
+  objectType         Type                    @relation("DeclarationTypes", fields: [typeId], references: [id])
+  evidence           Evidence[]
+  foundMatches       Match[]                 @relation("FoundMatches")
+  lostMatches        Match[]                 @relation("LostMatches")
+  photos             Photo[]
+  restitutions       Restitution[]
+}
+
+model Photo {
+  id                     String        @id @default(uuid()) @db.Uuid
+  declarationId          String        @db.Uuid
+  objectKey              String        @db.VarChar(500)
+  filename               String        @db.VarChar(255)
+  mimeType               String        @db.VarChar(100)
+  sizeBytes              Int
+  sha256                 String        @db.VarChar(64)
+  width                  Int?
+  height                 Int?
+  isCniPhoto             Boolean       @default(false)
+  uploadedAt             DateTime      @default(now())
+  evidences              Evidence[]
+  declaration            Declaration   @relation(fields: [declarationId], references: [id])
+  restitutionIdentityDoc Restitution[] @relation("RestitutionIdentityPhoto")
+  restitutionObjectPhoto Restitution[] @relation("RestitutionObjectPhoto")
+}
+
+model Evidence {
+  id            String        @id @default(uuid()) @db.Uuid
+  declarationId String        @db.Uuid
+  kind          EvidenceKind
+  photoId       String        @db.Uuid
+  uploadedAt    DateTime      @default(now())
+  agentId       String?       @db.Uuid
+  agent         AgentProfile? @relation("EvidenceAgent", fields: [agentId], references: [id])
+  declaration   Declaration   @relation(fields: [declarationId], references: [id])
+  photo         Photo         @relation(fields: [photoId], references: [id])
+}
+
+model Match {
+  id                    String       @id @default(uuid()) @db.Uuid
+  lostDeclarationId     String       @db.Uuid
+  foundDeclarationId    String       @db.Uuid
+  score                 Float
+  scoreBreakdown        Json
+  computedAt            DateTime     @default(now())
+  matchingEngineVersion String       @db.VarChar(50)
+  status                MatchStatus  @default(CANDIDATE)
+  candidateRank         Int?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  auditLogs             AuditLog[]
+  foundDeclaration      Declaration  @relation("FoundMatches", fields: [foundDeclarationId], references: [id])
+  lostDeclaration       Declaration  @relation("LostMatches", fields: [lostDeclarationId], references: [id])
+  restitution           Restitution?
+  validations           Validation[]
+
+  @@unique([lostDeclarationId, foundDeclarationId])
+}
+
+model Validation {
+  id          String       @id @default(uuid()) @db.Uuid
+  matchId     String       @db.Uuid
+  agentId     String       @db.Uuid
+  decision    String       @db.VarChar(50)
+  reason      String?
+  isDouble    Boolean      @default(false)
+  validatedAt DateTime     @default(now())
+  ip          String?      @db.VarChar(45)
+  auditLogs   AuditLog[]
+  agent       AgentProfile @relation(fields: [agentId], references: [id])
+  match       Match        @relation(fields: [matchId], references: [id])
+
+  @@index([matchId])
+  @@index([agentId])
+}
+
+model Restitution {
+  id                 String            @id @default(uuid()) @db.Uuid
+  declarationId      String            @db.Uuid
+  lostDeclarationId  String            @db.Uuid
+  foundDeclarationId String            @db.Uuid
+  matchId            String?           @unique @db.Uuid
+  centerId           String            @db.Uuid
+  agentId            String            @db.Uuid
+  citizenId          String            @db.Uuid
+  status             RestitutionStatus @default(PENDING)
+  identityDocPhotoId String?           @db.Uuid
+  objectPhotoId      String?           @db.Uuid
+  signatureProof     String?           @db.VarChar(50)
+  signatureType      String?           @db.VarChar(20)
+  otpVerified        Boolean?          @default(false)
+  notes              String?
+  plannedAt          DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  auditLogs          AuditLog[]
+  agent              AgentProfile      @relation("RestitutionAgent", fields: [agentId], references: [id])
+  center             Center            @relation(fields: [centerId], references: [id])
+  citizen            CitizenProfile    @relation(fields: [citizenId], references: [id])
+  declaration        Declaration       @relation(fields: [declarationId], references: [id])
+  identityDocPhoto   Photo?            @relation("RestitutionIdentityPhoto", fields: [identityDocPhotoId], references: [id])
+  match              Match?            @relation(fields: [matchId], references: [id])
+  objectPhoto        Photo?            @relation("RestitutionObjectPhoto", fields: [objectPhotoId], references: [id])
+}
+
+model Consent {
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String        @db.Uuid
+  scope        String        @db.VarChar(100)
+  grantedAt    DateTime      @default(now())
+  revokedAt    DateTime?
+  ip           String?       @db.VarChar(45)
+  userAgent    String?       @db.VarChar(500)
+  user         User          @relation(fields: [userId], references: [id])
+  declarations Declaration[]
+
+  @@index([userId])
+}
+
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique @db.VarChar(255)
+  ip        String?   @db.VarChar(45)
+  userAgent String?   @db.VarChar(500)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model OtpCode {
+  id             String    @id @default(uuid()) @db.Uuid
+  phoneE164      String    @db.VarChar(20)
+  codeHash       String    @db.VarChar(255)
+  purpose        String    @db.VarChar(50)
+  expiresAt      DateTime
+  usedAt         DateTime?
+  failedAttempts Int       @default(0)
+  createdAt      DateTime  @default(now())
+
+  @@index([phoneE164])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id            String         @id @default(uuid()) @db.Uuid
+  actorId       String?        @db.Uuid
+  actorRole     UserRole?
+  action        AuditEventType
+  entityType    String?        @db.VarChar(50)
+  entityId      String?        @db.Uuid
+  beforeHash    String?        @db.VarChar(64)
+  afterHash     String?        @db.VarChar(64)
+  ip            String?        @db.VarChar(45)
+  userAgent     String?        @db.VarChar(500)
+  occurredAt    DateTime       @default(now())
+  correlationId String         @db.VarChar(36)
+  chainHash     String?        @db.VarChar(64)
+  signature     String?        @db.VarChar(255)
+  declarationId String?        @db.Uuid
+  matchId       String?        @db.Uuid
+  validationId  String?        @db.Uuid
+  restitutionId String?        @db.Uuid
+  user          User?          @relation(fields: [actorId], references: [id])
+  declaration   Declaration?   @relation(fields: [declarationId], references: [id])
+  match         Match?         @relation(fields: [matchId], references: [id])
+  restitution   Restitution?   @relation(fields: [restitutionId], references: [id])
+  validation    Validation?    @relation(fields: [validationId], references: [id])
+
+  @@index([correlationId])
+  @@index([occurredAt])
+  @@index([actorId])
+  @@index([entityType, entityId])
+}
+
+model Notification {
+  id                 String               @id @default(uuid()) @db.Uuid
+  eventType          String               @db.VarChar(100)
+  recipientPhoneE164 String?              @db.VarChar(20)
+  recipientEmail     String?              @db.VarChar(255)
+  recipientUserId    String?              @db.Uuid
+  channel            NotificationChannel
+  provider           NotificationProvider @default(MOCK)
+  templateCode       String?              @db.VarChar(100)
+  subject            String?              @db.VarChar(255)
+  bodyTemplate       String?
+  idempotencyKey     String               @db.VarChar(36)
+  status             NotificationStatus   @default(PENDING)
+  providerStatus     String?              @db.VarChar(100)
+  providerMessageId  String?              @db.VarChar(255)
+  costEstimated      Float?
+  sentAt             DateTime?
+  deliveredAt        DateTime?
+  failedAt           DateTime?
+  retryCount         Int                  @default(0)
+  dlqEnqueued        Boolean              @default(false)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  recipientUser      User?                @relation(fields: [recipientUserId], references: [id])
+
+  @@index([idempotencyKey])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model NotificationTemplate {
+  id        String              @id @default(uuid()) @db.Uuid
+  code      String              @unique @db.VarChar(100)
+  channel   NotificationChannel
+  language  String              @default("fr") @db.VarChar(10)
+  subject   String?             @db.VarChar(255)
+  body      String
+  isActive  Boolean             @default(true)
+  version   Int                 @default(1)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+}
+
+model Incident {
+  id                 String           @id @default(uuid()) @db.Uuid
+  severity           IncidentSeverity
+  type               String           @db.VarChar(100)
+  status             IncidentStatus   @default(DETECTED)
+  title              String           @db.VarChar(255)
+  description        String
+  detectedAt         DateTime         @default(now())
+  containedAt        DateTime?
+  remediatedAt       DateTime?
+  reportedToApdpAt   DateTime?
+  reportedToApdp     Boolean          @default(false)
+  reporterUserId     String?          @db.Uuid
+  affectedEntityId   String?          @db.Uuid
+  affectedEntityType String?          @db.VarChar(50)
+  resolutionNotes    String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  reporter           User?            @relation(fields: [reporterUserId], references: [id])
+}
+
+model SystemPolicy {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique @db.VarChar(100)
+  value       Json
+  description String?
+  updatedBy   String?  @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Archive {
+  id             String        @id @default(uuid()) @db.Uuid
+  sourceType     String        @db.VarChar(50)
+  sourceId       String        @db.Uuid
+  archivedAt     DateTime      @default(now())
+  retentionUntil DateTime
+  purgeAfter     DateTime
+  mode           RetentionMode @default(ARCHIVED)
+  reason         String?       @db.VarChar(255)
+  createdBy      String?       @db.Uuid
+
+  @@index([sourceType, sourceId])
+  @@index([retentionUntil])
+  @@index([purgeAfter])
+}
+
+model AppParameter {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(100)
+  value       String
+  dataType    String   @db.VarChar(20)
+  description String?
+  updatedBy   String?  @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum UserRole {
+  CITIZEN
+  AGENT
+  CENTER_MANAGER
+  REGIONAL_ADMIN
+  NATIONAL_ADMIN
+  AUDITOR
+  TECH_ADMIN
+}
+
+enum DeclarationType {
+  LOSS
+  FOUND
+}
+
+enum DeclarationNature {
+  DOCUMENT
+  OBJET
+}
+
+enum DeclarationStatus {
+  BROUILLON
+  SOUMISE
+  EN_ATTENTE_RAPPROCHEMENT
+  CORRESPONDANCE_TROUVEE   @map("CORRESPONDANCE_TROUVÉE")
+  EN_VALIDATION_HUMAINE
+  VALIDEE                  @map("VALIDÉE")
+  RESTITUTION_PLANIFIEE    @map("RESTITUTION_PLANIFIÉE")
+  RESTITUEE                @map("RESTITUÉE")
+  CLOTUREE                 @map("CLÔTURÉE")
+  REJETEE                  @map("REJETÉE")
+  ARCHIVEE                 @map("ARCHIVÉE")
+  EXPIREE                  @map("EXPIRÉE")
+  SUSPENDUE
+  CONTESTEE                @map("CONTESTÉE")
+}
+
+enum DraftCancellationStatus {
+  ACTIVE
+  ANNULE @map("ANNULÉ")
+}
+
+enum MatchStatus {
+  CANDIDATE
+  POTENTIAL
+  TO_VERIFY
+  CONFIRMED
+  REJECTED
+  CLOSED
+}
+
+enum NotificationChannel {
+  SMS
+  EMAIL
+  IN_APP
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  BOUNCED
+  OPTED_OUT
+}
+
+enum NotificationProvider {
+  MOCK
+  MOCK_EMAIL
+  EXTERNAL_SMS
+  EXTERNAL_EMAIL
+  IN_APP
+}
+
+enum RestitutionStatus {
+  PENDING
+  VERIFIED
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  DETECTED
+  ANALYZED
+  CONTAINED
+  REMEDIATED
+  RESOLVED
+  REPORTED_APDP
+}
+
+enum RetentionMode {
+  ACTIVE
+  ARCHIVED
+  EXPIRED
+  PURGED
+}
+
+enum EvidenceKind {
+  IDENTITY_DOC
+  OBJECT_PHOTO
+  SIGNATURE
+}
+
+enum AuditEventType {
+  AUTH_LOGIN_SUCCESS
+  AUTH_LOGIN_FAILED
+  DECLARATION_CREATED
+  DECLARATION_UPDATED
+  DECLARATION_SUBMITTED
+  MATCH_SCORE_COMPUTED
+  MATCH_STATE_CHANGED
+  VALIDATION_PERFORMED
+  RESTITUTION_INITIATED
+  RESTITUTION_COMPLETED
+  RESTITUTION_REJECTED
+  STATUS_CHANGED
+  SUSPICION_REPORTED
+  CONTESTATION_FILED
+  ADMIN_ACTION
+  POLICY_CHANGED
+  INCIDENT_REPORTED
+  DATA_ACCESS
+  DATA_EXPORTED
+  DATA_DELETED
+  SYSTEM_EVENT
+}

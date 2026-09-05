@@ -1,0 +1,947 @@
+﻿# MALI RETROUVÃƒâ€° Ã¢â‚¬â€ Analyse Produit (Product Analyst)
+
+> **Document de cadrage produit Ã¢â‚¬â€ niveau senior analyst**
+> Plateforme nationale d'objets et documents perdus/trouvÃƒÂ©s (Mali)
+> Auteur : Product Analyst Ã¢â‚¬Â¢ Date : 02/09/2026
+
+---
+
+## LÃƒÂ©gende des ÃƒÂ©tiquettes
+
+| Ãƒâ€°tiquette | Sens |
+|---|---|
+| **FAIT** | Fait observable, documentÃƒÂ©, vÃƒÂ©rifiable |
+| **SOURCE** | RÃƒÂ©fÃƒÂ©rence externe citÃƒÂ©e (loi, norme, doc existante) |
+| **DÃƒâ€°DUCTION** | InfÃƒÂ©rence logique issue d'un fait observÃƒÂ© |
+| **RECOMMANDATION** | Proposition de l'analyste, ÃƒÂ  valider |
+| **HYPOTHÃƒË†SE** | Estimation non confirmÃƒÂ©e, ÃƒÂ  vÃƒÂ©rifier |
+| **DÃƒâ€°CISION Ãƒâ‚¬ PRENDRE** | Choix bloquant qui nÃƒÂ©cessite un arbitrage humain |
+| **POINT Ãƒâ‚¬ VÃƒâ€°RIFIER** | Affirmation ÃƒÂ  confirmer avant engagement |
+
+---
+
+## 01 Ã¢â‚¬â€ Vision produit
+
+**MALI RETROUVÃƒâ€°** est la plateforme nationale malienne de rapprochement entre **citoyens ayant perdu** un document ou un objet, et **citoyens ayant trouvÃƒÂ©** un document ou un objet. Elle ÃƒÂ©tend le service existant micati.site/cni (CNI uniquement) ÃƒÂ  l'ensemble des piÃƒÂ¨ces d'identitÃƒÂ©, documents de voyage, titres de transport, diplÃƒÂ´mes, badges professionnels, cartes santÃƒÂ©/assurance, actes administratifs, tÃƒÂ©lÃƒÂ©phones, et objets personnels.
+
+**Promesse** : *Ã‚Â« Chaque document a son propriÃƒÂ©taire. Chaque objet peut ÃƒÂªtre retrouvÃƒÂ©. Ã‚Â»*
+
+**FAIT** Ã¢â‚¬â€ micati.site/cni existe aujourd'hui, couvre la CNI uniquement, collecte NNI/CNI number/nom/tÃƒÂ©lÃƒÂ©phone/email, utilise HMAC-SHA256 pour le NNI, applique une rÃƒÂ©tention de 12 mois et dispose d'un lien de don Wave.
+**DÃƒâ€°DUCTION** Ã¢â‚¬â€ Le systÃƒÂ¨me a prouvÃƒÂ© la faisabilitÃƒÂ© et la pertinence mÃƒÂ©tier sur la CNI ; l'extension nationale doit capitaliser sur cette base sans casser le service existant.
+
+### Trois piliers
+
+1. **Inclusion** Ã¢â‚¬â€ couverture rurale, pÃƒÂ©ri-urbaine, faible littÃƒÂ©ratie numÃƒÂ©rique, multilinguisme (franÃƒÂ§ais + bambara + autres langues nationales ÃƒÂ  terme).
+2. **Confiance** Ã¢â‚¬â€ vÃƒÂ©rification forte du propriÃƒÂ©taire avant restitution, traÃƒÂ§abilitÃƒÂ©, conformitÃƒÂ© APDP et Code pÃƒÂ©nal malien 2024 (articles 322-9 ÃƒÂ  322-30 Ã¢â‚¬â€ rÃƒÂ©fÃƒÂ©rence exacte **Ãƒâ‚¬ vÃƒÂ©rifier juridiquement**).
+3. **RÃƒÂ©seau** Ã¢â‚¬â€ partenariat avec les centres partenaires (mairies, prÃƒÂ©fectures, commissariats, gares, aÃƒÂ©roports, ÃƒÂ©tablissements partenaires) pour la collecte et la conservation physique sÃƒÂ©curisÃƒÂ©e.
+
+### Objectif stratÃƒÂ©gique
+
+Devenir **le point de contact unique national** pour la dÃƒÂ©claration, la recherche, le rapprochement, la vÃƒÂ©rification et la restitution des documents/objets perdus au Mali, avec une gouvernance publique transparente et un modÃƒÂ¨le ÃƒÂ©conomique durable (subventions + partenariats + dons volontaires Wave).
+
+**POINT Ãƒâ‚¬ VÃƒâ€°RIFIER** Ã¢â‚¬â€ Mandat officiel des autoritÃƒÂ©s maliennes (MinistÃƒÂ¨re de la SÃƒÂ©curitÃƒÂ©, ANINF, MinistÃƒÂ¨re de l'Administration du Territoire) pour piloter un tel service ÃƒÂ  l'ÃƒÂ©chelle nationale.
+
+---
+
+## 02 Ã¢â‚¬â€ ProblÃƒÂ¨me ÃƒÂ  rÃƒÂ©soudre
+
+### ProblÃƒÂ¨me fondamental
+
+Les citoyens maliens perdent quotidiennement des documents (CNI, passeports, permis, diplÃƒÂ´mes) et objets (tÃƒÂ©lÃƒÂ©phones, clÃƒÂ©s) qui finissent soit :
+- non dÃƒÂ©clarÃƒÂ©s Ã¢â€ â€™ jamais retrouvÃƒÂ©s ;
+- dÃƒÂ©clarÃƒÂ©s ÃƒÂ  la police/gendarmerie sans suite par manque d'outil ;
+- dÃƒÂ©posÃƒÂ©s dans des services qui n'ont pas les moyens de retrouver le propriÃƒÂ©taire ;
+- conservÃƒÂ©s indÃƒÂ©finiment par des Ã‚Â« trouveurs Ã‚Â» qui ne savent pas oÃƒÂ¹ s'adresser.
+
+**FAIT** Ã¢â‚¬â€ micati.site/cni dÃƒÂ©montre qu'une plateforme numÃƒÂ©rique lÃƒÂ©gÃƒÂ¨re peut absorber ce flux pour la CNI.
+
+### Sous-problÃƒÂ¨mes critiques
+
+| # | Sous-problÃƒÂ¨me | Impact |
+|---|---|---|
+| P1 | Absence d'identifiant unique autre que le NNI pour relier un objet perdu ÃƒÂ  un dÃƒÂ©clarant | Faux positifs, usurpation |
+| P2 | Aucun canal national unifiÃƒÂ© (police, gendarmerie, mairies, transporteurs traitent en silos) | Duplications, pertes sÃƒÂ¨ches |
+| P3 | ConfidentialitÃƒÂ© insuffisante : afficher publiquement des donnÃƒÂ©es sensibles (NNI, tÃƒÂ©lÃƒÂ©phone) crÃƒÂ©e un risque d'usurpation d'identitÃƒÂ© | Violation Loi 2013-015 + Code pÃƒÂ©nal 2024 |
+| P4 | Processus de vÃƒÂ©rification de propriÃƒÂ©tÃƒÂ© inexistant ou faible | Restitution ÃƒÂ  un mauvais propriÃƒÂ©taire |
+| P5 | Pas d'incitation pour les Ã‚Â« trouveurs Ã‚Â» honnÃƒÂªtes | DÃƒÂ©couragement, non-dÃƒÂ©claration |
+| P6 | Couverture mobile inÃƒÂ©gale, alphabÃƒÂ©tisation numÃƒÂ©rique variable | Exclusion rurale |
+| P7 | RÃƒÂ©tention non encadrÃƒÂ©e Ã¢â€ â€™ conservation indÃƒÂ©finie de donnÃƒÂ©es personnelles | Risque APDP |
+| P8 | Pas de traÃƒÂ§abilitÃƒÂ© post-restitution Ã¢â€ â€™ aucune lutte contre le recel | DifficultÃƒÂ© ÃƒÂ  poursuivre |
+
+**SOURCE** Ã¢â‚¬â€ Loi nÃ‚Â° 2013-015 du 21 mai 2013 relative ÃƒÂ  la protection des donnÃƒÂ©es ÃƒÂ  caractÃƒÂ¨re personnel (APDP). **POINT Ãƒâ‚¬ VÃƒâ€°RIFIER** Ã¢â‚¬â€ rÃƒÂ©fÃƒÂ©rence exacte et intitulÃƒÂ© des articles 322-9 ÃƒÂ  322-30 du Code pÃƒÂ©nal malien 2024 (texte intÃƒÂ©gral ÃƒÂ  confirmer auprÃƒÂ¨s du Juridique).
+
+### Indicateurs d'ÃƒÂ©chec ÃƒÂ  ÃƒÂ©viter
+
+- Faux positifs (croisement trop large) Ã¢â€ â€™ frustration, perte de confiance.
+- Faux nÃƒÂ©gatifs (correspondance trop stricte) Ã¢â€ â€™ service inutile.
+- Fuite de donnÃƒÂ©es Ã¢â€ â€™ sanctions APDP (2,5M-20M FCFA) + Code pÃƒÂ©nal 2024 (**ÃƒÂ  vÃƒÂ©rifier juridiquement**).
+- Blocage gÃƒÂ©ographique (centre ÃƒÂ  Bamako) Ã¢â€ â€™ exclusion rurale.
+
+---
+
+## 03 Ã¢â‚¬â€ Utilisateurs et acteurs
+
+### Utilisateurs primaires
+
+| Persona | Profil | Besoin | Contrainte |
+|---|---|---|---|
+| **Citoyen lambda (perdeur)** | SalariÃƒÂ©, ÃƒÂ©tudiant, commerÃƒÂ§ant, 18-65 ans, smartphone bas/mi-gamme | Retrouver un document critique pour son quotidien | RÃƒÂ©seau limitÃƒÂ©, parfois SMS only, faible littÃƒÂ©ratie numÃƒÂ©rique |
+| **Citoyen honnÃƒÂªte (trouveur)** | Passant, chauffeur, agent de gare | Remettre l'objet ÃƒÂ  bon propriÃƒÂ©taire de faÃƒÂ§on fiable | Manque de temps, mÃƒÂ©fiance institutionnelle |
+| **Agent de centre partenaire** | Personnel de mairie, commissariat, gare, bureau | RÃƒÂ©ceptionner, sÃƒÂ©curiser, rapprocher | Besoin d'outils simples, formation courte |
+| **OpÃƒÂ©rateur d'administration centrale** | Ãƒâ€°quipe projet MALI RETROUVÃƒâ€° | Superviser, modÃƒÂ©rer, traiter les cas | Volume potentiellement ÃƒÂ©levÃƒÂ© |
+| **ModÃƒÂ©rateur / VÃƒÂ©rificateur** | Personnel formÃƒÂ© ÃƒÂ  la vÃƒÂ©rification de propriÃƒÂ©tÃƒÂ© | Confirmer le lien propriÃƒÂ©taire/objet | SensibilitÃƒÂ© des donnÃƒÂ©es, risque d'erreur |
+
+### Acteurs secondaires
+
+| Acteur | RÃƒÂ´le |
+|---|---|
+| **APDP** | AutoritÃƒÂ© de contrÃƒÂ´le (Loi 2013-015). Droits d'accÃƒÂ¨s, rectification, suppression. DÃƒÂ©lai de rÃƒÂ©ponse 30 jours. |
+| **Forces de sÃƒÂ©curitÃƒÂ©** (police, gendarmerie) | RÃƒÂ©ception des dÃƒÂ©clarations officielles, investigations recel, partenariats locaux |
+| **MinistÃƒÂ¨res sectoriels** | Tutelle, validation des process, communication officielle |
+| **OpÃƒÂ©rateurs tÃƒÂ©lÃƒÂ©com** (Orange, Moov, Malitel) | Diffusion SMS, USSD, intÃƒÂ©gration mobile money |
+| **ANINF** (HYPOTHÃƒË†SE) | HÃƒÂ©bergement souverain, conformitÃƒÂ© cloud national |
+| **Wave** | Donations, paiement de frais de service (modÃƒÂ¨le ÃƒÂ©conomique) |
+| **Partenaires logistique** (SGG, mairies, prÃƒÂ©fectures) | Conservation physique sÃƒÂ©curisÃƒÂ©e, points de retrait |
+| **Associations / OSC** | Sensibilisation, mÃƒÂ©diation, accompagnement victimes |
+| **Assureurs / Banques** | IntÃƒÂ©gration future (dÃƒÂ©claration auto, opposition) |
+
+---
+
+## 04 Ã¢â‚¬â€ Parcours utilisateurs (8 parcours)
+
+### P1 Ã¢â‚¬â€ Parcours Citoyen (vue d'ensemble)
+DÃƒÂ©couverte via Google, radio communautaire, bouche-ÃƒÂ -oreille, affiche en centre partenaire. Choix entre Ã‚Â« J'ai perdu Ã‚Â» / Ã‚Â« J'ai trouvÃƒÂ© Ã‚Â». Ãƒâ€°tats d'entrÃƒÂ©e : `nouveau`, `dÃƒÂ©clarant inscrit`, `dÃƒÂ©clarant invitÃƒÂ©`. Sortie : dÃƒÂ©claration crÃƒÂ©ÃƒÂ©e, notification reÃƒÂ§ue, ou abandon (analytics ÃƒÂ  tracker).
+
+### P2 Ã¢â‚¬â€ J'ai perdu (dÃƒÂ©clarant)
+1. SÃƒÂ©lection du type (12 catÃƒÂ©gories).
+2. Identification dÃƒÂ©clarant : nom, prÃƒÂ©nom, tÃƒÂ©lÃƒÂ©phone (OTP SMS), email (optionnel).
+3. Description : catÃƒÂ©gorie, sous-catÃƒÂ©gorie, marque/modÃƒÂ¨le, couleur(s), signes distinctifs ; date/lieu de perte ; numÃƒÂ©ro de rÃƒÂ©fÃƒÂ©rence si disponible.
+4. PiÃƒÂ¨ces justificatives : photo (recommandÃƒÂ©), reÃƒÂ§u de dÃƒÂ©pÃƒÂ´t si existant.
+5. Choix du rayon de recherche : commune, cercle, rÃƒÂ©gion, district.
+6. Consentement (RGPD-like).
+7. Validation Ã¢â€ â€™ ID dossier (`MR-2026-001234`).
+8. Notification SMS de confirmation.
+
+**Critique** : aucune donnÃƒÂ©e sensible (NNI complet, photo intÃƒÂ©grale de CNI) ne doit ÃƒÂªtre exposÃƒÂ©e publiquement.
+
+### P3 Ã¢â‚¬â€ J'ai trouvÃƒÂ© (dÃƒÂ©clarant)
+1. Identification trouveur (OTP).
+2. Description + photo.
+3. Choix du mode de remise : centre partenaire OU conservation personnelle.
+4. Consentement ÃƒÂ©clairÃƒÂ©.
+
+**DÃƒâ€°CISION Ãƒâ‚¬ PRENDRE** : autoriser la conservation personnelle longue durÃƒÂ©e ? **RECOMMANDATION** : dÃƒÂ©courager, privilÃƒÂ©gier centre partenaire.
+
+### P4 Ã¢â‚¬â€ Rapprochement (matching Ã¢â‚¬â€ cÃ…â€œur mÃƒÂ©tier)
+Processus systÃƒÂ©matique ÃƒÂ  chaque nouvelle dÃƒÂ©claration :
+- **RÃƒÂ¨gles strictes** : NNI + nom + date de naissance + 1 autre champ / CNI number + nom / IMEI + marque + couleur / Passeport numÃƒÂ©ro + nom + date de naissance.
+- **RÃƒÂ¨gles moyennes** : catÃƒÂ©gorie + couleur(s) + zone gÃƒÂ©ographique + proximitÃƒÂ© temporelle.
+- **Score** : combinaison pondÃƒÂ©rÃƒÂ©e (calibrage phase 2).
+- **DÃƒÂ©cision** : score Ã¢â€°Â¥ 0.85 = confirmÃƒÂ© ; 0.5-0.85 = potentiel ; < 0.5 = pas de notification.
+- **TraceabilitÃƒÂ©** : journal de chaque calcul (audit APDP).
+
+**RECOMMANDATION** : ne jamais afficher de score ÃƒÂ  l'utilisateur final.
+
+### P5 Ã¢â‚¬â€ VÃƒÂ©rification de propriÃƒÂ©tÃƒÂ©
+- Notification au perdeur avec questionnaire (adresse liÃƒÂ©e au document, photo rÃƒÂ©cente, anciens NNI partiels).
+- Demande de dÃƒÂ©pÃƒÂ´t en centre partenaire au trouveur (si conservation personnelle).
+- ModÃƒÂ©rateur humain statue : ConfirmÃƒÂ© / Ãƒâ‚¬ complÃƒÂ©ter / RejetÃƒÂ©.
+
+### P6 Ã¢â‚¬â€ Restitution
+- Choix du mode : centre partenaire (dÃƒÂ©faut) / rencontre contrÃƒÂ´lÃƒÂ©e / envoi postal (**POINT Ãƒâ‚¬ VÃƒâ€°RIFIER**).
+- VÃƒÂ©rification finale : piÃƒÂ¨ce d'identitÃƒÂ© + code OTP.
+- Quittance signÃƒÂ©e + horodatÃƒÂ©e + photo (consentie).
+- Notification de clÃƒÂ´ture aux deux parties.
+- Anonymisation postrÃƒÂ©tention.
+
+### P7 Ã¢â‚¬â€ Centre partenaire
+1. RÃƒÂ©ception : scan QR / numÃƒÂ©ro de dossier.
+2. Photographie et description complÃƒÂ©mentaire.
+3. Conservation : casier sÃƒÂ©curisÃƒÂ© + journal d'accÃƒÂ¨s.
+4. Rapprochement local automatique.
+5. Remise au propriÃƒÂ©taire lÃƒÂ©gitime aprÃƒÂ¨s vÃƒÂ©rification.
+6. Rapport mensuel.
+
+### P8 Ã¢â‚¬â€ Administration / ModÃƒÂ©ration
+1. Tableau de bord KPIs temps rÃƒÂ©el.
+2. File de modÃƒÂ©ration par type/rÃƒÂ©gion.
+3. VÃƒÂ©rification de propriÃƒÂ©tÃƒÂ© (escalade).
+4. Gestion des centres partenaires.
+5. ConformitÃƒÂ© APDP (exports, journal).
+6. Communication ciblÃƒÂ©e (SMS blast rÃƒÂ©gional).
+7. ParamÃƒÂ©trage des rÃƒÂ¨gles mÃƒÂ©tier.
+
+---
+
+## 05 Ã¢â‚¬â€ FonctionnalitÃƒÂ©s
+
+### Bloc A Ã¢â‚¬â€ DÃƒÂ©claration & description
+- **F1** Formulaire Ã‚Â« J'ai perdu Ã‚Â» multi-type (12 catÃƒÂ©gories).
+- **F2** Formulaire Ã‚Â« J'ai trouvÃƒÂ© Ã‚Â» multi-type.
+- **F3** Saisie assistÃƒÂ©e avec autocomplÃƒÂ©tion.
+- **F4** Capture photo avec recadrage guidÃƒÂ©.
+- **F5** Anti-fausse dÃƒÂ©claration (dÃƒÂ©tection floutage).
+
+### Bloc B Ã¢â‚¬â€ IdentitÃƒÂ© & compte
+- **F6** Auth OTP tÃƒÂ©lÃƒÂ©phone.
+- **F7** Email + mot de passe (rÃƒÂ©currents).
+- **F8** Espace personnel.
+- **F9** Demande RGPD (30 j).
+- **F10** DÃƒÂ©sinscription.
+
+### Bloc C Ã¢â‚¬â€ Rapprochement
+- **F11** Moteur matching pondÃƒÂ©rÃƒÂ© + journal d'audit.
+- **F12** DÃƒÂ©tection de doublons.
+- **F13** File des correspondances potentielles.
+- **F14** Scoring paramÃƒÂ©trable.
+
+### Bloc D Ã¢â‚¬â€ VÃƒÂ©rification & restitution
+- **F15** Questionnaire dynamique.
+- **F16** Code de retrait (OTP/QR).
+- **F17** Signature numÃƒÂ©rique de quittance.
+- **F18** Preuve de restitution (PDF).
+
+### Bloc E Ã¢â‚¬â€ Centres partenaires
+- **F19** Inscription centre (workflow).
+- **F20** Stock physique virtuel.
+- **F21** Interface agent mobile-first.
+- **F22** Rapport mensuel auto.
+- **F23** Audit terrain.
+
+### Bloc F Ã¢â‚¬â€ Notifications & multilingue
+- **F24** SMS FR (+ bambara futur).
+- **F25** In-app.
+- **F26** Emails transactionnels.
+- **F27** Bandeaux contextuels.
+
+### Bloc G Ã¢â‚¬â€ SÃƒÂ©curitÃƒÂ© & conformitÃƒÂ©
+- **F28** HMAC-SHA256 NNI/CNI/IMEI (dÃƒÂ©jÃƒÂ  en place).
+- **F29** Journalisation accÃƒÂ¨s donnÃƒÂ©es.
+- **F30** TLS 1.2+ + chiffrement at-rest.
+- **F31** RBAC.
+- **F32** RÃƒÂ©tention configurable (12 mois).
+- **F33** Export RGPD + registre des traitements.
+
+### Bloc H Ã¢â‚¬â€ Administration
+- **F34** Dashboard multi-KPIs.
+- **F35** Gestion utilisateurs & rÃƒÂ´les.
+- **F36** ModÃƒÂ©ration motivÃƒÂ©e.
+- **F37** Communication institutionnelle.
+- **F38** Rapports CSV/PDF.
+- **F39** Logs immutables.
+
+### Bloc I Ã¢â‚¬â€ Ãƒâ€°conomie & don
+- **F40** Don Wave (dÃƒÂ©jÃƒÂ  en place, ÃƒÂ  ÃƒÂ©tendre).
+- **F41** Freemium (publication gratuite ; premium pros).
+
+---
+
+## 06 Ã¢â‚¬â€ RÃƒÂ¨gles mÃƒÂ©tier
+
+### R-C ConfidentialitÃƒÂ©
+- **R-C1** Aucune diffusion publique d'identifiants sensibles.
+- **R-C2** CNI number complet visible uniquement par : dÃƒÂ©clarant, modÃƒÂ©rateur autorisÃƒÂ©, agent centre lors de la remise.
+- **R-C3** NNI stockÃƒÂ© hachÃƒÂ© HMAC-SHA256 (dÃƒÂ©jÃƒÂ  en place).
+- **R-C4** Noms/prÃƒÂ©noms partiellement masquÃƒÂ©s (initiale + 2 caractÃƒÂ¨res) pour correspondances potentielles.
+
+### R-M Matching
+- **R-M1** Toute correspondance tracÃƒÂ©e (inputs, score, timestamp).
+- **R-M2** Aucune correspondance communiquÃƒÂ©e sans vÃƒÂ©rification validÃƒÂ©e.
+- **R-M3** Score conservateur (limite faux positifs).
+
+### R-R RÃƒÂ©tention
+- **R-R1** DonnÃƒÂ©es : 12 mois max aprÃƒÂ¨s clÃƒÂ´ture.
+- **R-R2** Photos : 12 mois aprÃƒÂ¨s clÃƒÂ´ture.
+- **R-R3** Logs d'audit : 24 mois.
+- **R-R4** Effacement dur au terme.
+
+### R-V VÃƒÂ©rification
+- **R-V1** Documents financiers Ã¢â€ â€™ contrÃƒÂ´le physique d'identitÃƒÂ© obligatoire.
+- **R-V2** Passeports : vÃƒÂ©rification consulaire (**POINT Ãƒâ‚¬ VÃƒâ€°RIFIER**).
+- **R-V3** SÃƒÂ©paration des rÃƒÂ´les dÃƒÂ©clarant/vÃƒÂ©rificateur.
+
+### R-MO ModÃƒÂ©ration
+- **R-MO1** Toute dÃƒÂ©cision de restitution tracÃƒÂ©e et motivÃƒÂ©e.
+- **R-MO2** Plafond de N dossiers/jour/modÃƒÂ©rateur (ÃƒÂ  calibrer).
+- **R-MO3** Rejet = motif codifiÃƒÂ©.
+
+### R-Ãƒâ€° Ãƒâ€°conomie
+- **R-Ãƒâ€°1** Service gratuit.
+- **R-Ãƒâ€°2** Don Wave autorisÃƒÂ©.
+- **R-Ãƒâ€°3** Pas de monÃƒÂ©tisation des donnÃƒÂ©es.
+
+### R-E Escalade
+- **R-E1** Document falsifiÃƒÂ© / identitÃƒÂ© incohÃƒÂ©rente Ã¢â€ â€™ escalade police/gendarmerie.
+- **R-E2** Plainte d'usurpation Ã¢â€ â€™ suspension immÃƒÂ©diate + enquÃƒÂªte.
+---
+
+## 11 â€” Architecture fonctionnelle (modules / business domains)
+
+`
++------------------------------------------------------------------+
+Â¦                       FRONT-END UNIFIÃ‰                            Â¦
+Â¦  Web public â€¢ Web admin â€¢ App mobile (PWA) â€¢ Interface centre    Â¦
++------------------------------------------------------------------+
+                 Â¦
++----------------?-------------------------------------------------+
+Â¦                  COUCHE API / SERVICES                             Â¦
+Â¦ +-------------------------------------------------------------+  Â¦
+Â¦ Â¦ Auth       Â¦ IdentitÃ©   Â¦ NotificationÂ¦ Matching            Â¦  Â¦
+Â¦ Â¦ OTP/Email  Â¦ (PDV)      Â¦ SMS/Email   Â¦ (rÃ¨gles+journal)    Â¦  Â¦
+Â¦ +-------------------------------------------------------------+  Â¦
+Â¦ +-------------------------------------------------------------+  Â¦
+Â¦ Â¦ DÃ©clarationÂ¦ Centres    Â¦ VÃ©rificationÂ¦ Quittance/RGPD      Â¦  Â¦
+Â¦ Â¦ (perdue/   Â¦ PartenairesÂ¦ PropriÃ©tÃ©   Â¦ Export/Suppression  Â¦  Â¦
+Â¦ Â¦  trouvÃ©e)  Â¦            Â¦             Â¦                     Â¦  Â¦
+Â¦ +-------------------------------------------------------------+  Â¦
+Â¦ +-------------------------------------------------------------+  Â¦
+Â¦ Â¦ ModÃ©ration Â¦ Admin      Â¦ Audit &     Â¦ Donation (Wave)     Â¦  Â¦
+Â¦ Â¦ (workflow) Â¦            Â¦ Observab.   Â¦                     Â¦  Â¦
+Â¦ +-------------------------------------------------------------+  Â¦
++------------------------------------------------------------------+
+                 Â¦
++----------------?-------------------------------------------------+
+Â¦                  COUCHE DONNÃ‰ES                                    Â¦
+Â¦  DÃ©clarations â€¢ IdentitÃ©s (hashÃ©es) â€¢ Logs â€¢ Stock centres â€¢     Â¦
+Â¦  PiÃ¨ces jointes (S3-compatible) â€¢ Index matching                  Â¦
++------------------------------------------------------------------+
+`
+
+### Domaines mÃ©tier (DDD)
+
+1. **DÃ©claration** â€” entitÃ© racine (perdue/trouvÃ©e), Ã©vÃ©nements.
+2. **Rapprochement** â€” service autonome, prÃªt-Ã -l'emploi.
+3. **VÃ©rification** â€” service d'authentification de propriÃ©taire.
+4. **Restitution** â€” workflow de remise, quittance.
+5. **Centre Partenaire** â€” entitÃ©, stock, agents.
+6. **ConformitÃ©** â€” registre RGPD, journal d'audit, demandes usagers.
+7. **Notification** â€” orchestrateur multi-canal.
+8. **IdentitÃ© utilisateur** â€” compte, OTP, RBAC.
+9. **Don / Ã‰conomie** â€” gestion Wave.
+
+---
+
+## 14 â€” Notifications
+
+### Matrice des notifications
+
+| Ã‰vÃ¨nement | SMS | Email | In-app | Push |
+|---|---|---|---|---|
+| OTP de connexion | ? | â€” | â€” | ? |
+| Confirmation dÃ©claration | ? | ? | ? | ? |
+| Correspondance potentielle | ? | â€” | ? | ? |
+| Correspondance confirmÃ©e | ? | ? | ? | ? |
+| Demande vÃ©rification propriÃ©tÃ© | ? | ? | ? | ? |
+| Code de retrait | ? | â€” | â€” | â€” |
+| Restitution effectuÃ©e | ? | ? | ? | ? |
+| Rejet modÃ©ration | ? | ? | ? | â€” |
+| Rappel expiration (J-7) | ? | ? | ? | ? |
+| Expiration dossier | ? | ? | ? | â€” |
+| Sollicitation APDP | ? | ? | ? | â€” |
+| Panne service / info critique | ? (rÃ©gion) | ? | ? | ? |
+
+### RÃ¨gles de frÃ©quence
+- **RN-1** Maximum 2 SMS par dÃ©clarant et par jour sauf escalade sÃ©curitÃ©.
+- **RN-2** PossibilitÃ© de dÃ©sactiver les notifications non-sÃ©curitÃ© depuis l'espace personnel.
+- **RN-3** Templates FR ; bambara pour les versions orales (futur).
+
+### SÃ©curitÃ©
+- **RN-S1** Aucun lien cliquable portant d'identifiant en clair.
+- **RN-S2** OTP Ã  durÃ©e courte (5 min) et usage unique.
+
+---
+
+## 15 â€” Centres partenaires
+
+### ModÃ¨le
+
+Un centre partenaire est une entitÃ© physique (mairie, commissariat, gare, prÃ©fecture, aÃ©roport, bureau de poste, banque partenaire) qui accepte de :
+1. rÃ©ceptionner les objets trouvÃ©s dÃ©posÃ©s par les trouveurs ;
+2. conserver ces objets en sÃ©curitÃ© ;
+3. faciliter la remise au propriÃ©taire lÃ©gitime aprÃ¨s vÃ©rification.
+
+### Inscription
+- **C-1** Demande en ligne par un rÃ©fÃ©rent identifiÃ©.
+- **C-2** Validation par l'administration centrale (existence juridique, identitÃ© du rÃ©fÃ©rent, adhÃ©sion charte).
+- **C-3** Formation en ligne (3 modules : rÃ©ception, conservation, remise) â€” obligatoire.
+- **C-4** Activation du compte agent avec rÃ´le gent_centre.
+
+### RÃ´les dans le centre
+- **RÃ©fÃ©rent** : valide les opÃ©rations, signe les restitutions.
+- **Agent accueil** : enregistre les dÃ©pÃ´ts/retraits.
+- **Agent vÃ©rificateur** : examine les Ã©lÃ©ments de preuve.
+
+### Stock
+- Casier virtuel (centre/zone/casier).
+- Chaque mouvement tracÃ© (entrÃ©e, sortie, transfert).
+- Audit mensuel : inventaire rÃ©el vs virtuel.
+
+### Couverture gÃ©ographique
+- **Phase 1** : District de Bamako (5 communes) + capitales rÃ©gionales (19 rÃ©gions).
+- **Phase 2** : cercles et arrondissements principaux.
+- **Phase 3** : couverture intÃ©grale 12 712 villages/fractions/quartiers via Points Services.
+
+**HYPOTHÃˆSE** â€” Le nombre 12 712 peut varier selon la source (INSTAT, MATD). **POINT Ã€ VÃ‰RIFIER**.
+
+### Indicateurs
+- Taux de rÃ©cupÃ©ration.
+- DÃ©lai moyen de restitution.
+- Taux d'occupation du stock.
+- Taux de satisfaction dÃ©clarant.
+
+---
+
+## 16 â€” Administration
+
+### Tableau de bord (KPIs)
+- Volume de dÃ©clarations (jour/semaine/mois).
+- RÃ©partition par catÃ©gorie.
+- Taux de rapprochement automatique / manuel.
+- DÃ©lai moyen perte?dÃ©claration et dÃ©claration?restitution.
+- Couverture gÃ©ographique (% communes couvertes).
+- Demandes RGPD reÃ§ues / traitÃ©es / dÃ©lai moyen.
+- Statistiques de fraude (signalements, suspensions).
+- Don Wave collectÃ©.
+
+### RÃ´les admin
+- **Super-admin** : tous droits y compris suppression.
+- **Admin rÃ©gional** : pÃ©rimÃ¨tre rÃ©gional.
+- **ModÃ©rateur national** : file de vÃ©rification.
+- **Auditeur** : lecture seule, logs et rapports.
+- **Support** : assistance N1, escalade N2.
+
+### Outils
+- Recherche full-text dans les dÃ©clarations.
+- Filtres avancÃ©s (catÃ©gorie, rÃ©gion, Ã¢ge, statut).
+- Tableau de comparaison cÃ´te-Ã -cÃ´te (perdu/trouvÃ©).
+- Export CSV / PDF (rapports officiels).
+- Webhooks sortants (futur).
+
+### ConformitÃ©
+- Registre des traitements (RGPD local + APDP).
+- ProcÃ©dure violation de donnÃ©es (72 h).
+- AIPD (analyse d'impact relative Ã  la protection des donnÃ©es) en dÃ©but de projet (**RECOMMANDATION** forte).
+
+---
+
+## 17 â€” Design system (fondations)
+
+### Couleurs (palette institutionnelle)
+- **Primaire** : vert Mali #1B9E3F (rÃ©fÃ©rence drapeau malien).
+- **Secondaire** : or #F2C94C.
+- **Neutre 900** : #0E1B2C (encre, texte principal).
+- **Neutre 700** : #3A4A5C.
+- **Neutre 500** : #7A8A9C.
+- **Neutre 300** : #C8D1DA.
+- **Neutre 100** : #F2F5F8.
+- **SuccÃ¨s** : #1B9E3F (idem primaire).
+- **Attention** : #F2A93B.
+- **Erreur** : #D6453C.
+- **Information** : #2C7BE5.
+
+> Voir section 20 pour les palettes dÃ©taillÃ©es.
+
+### Typographie
+- **Titres** : Inter ou Plus Jakarta Sans. Alternative open : Manrope.
+- **Corps** : Inter Regular 16 px (desktop), 14 px (mobile).
+- **Mono** : JetBrains Mono (codes OTP, identifiants techniques).
+- **HiÃ©rarchie** : H1 32/40 semibold ; H2 24/32 semibold ; H3 20/28 medium ; Body 16/24 regular ; Caption 12/16 medium uppercase.
+- **Support** : police systÃ¨me mobile (SF Pro, Roboto).
+
+### Espacement
+- SystÃ¨me base 4 : 4, 8, 12, 16, 24, 32, 48, 64.
+- Padding interne boutons : 12 20.
+- Cartes : padding 24, adius 16.
+- Sections : margin 64 desktop, 32 mobile.
+
+### Grille
+- **Desktop** : 12 colonnes, gouttiÃ¨re 24, marges 64.
+- **Tablette** : 8 colonnes, gouttiÃ¨re 16, marges 32.
+- **Mobile** : 4 colonnes, gouttiÃ¨re 16, marges 16.
+
+### Composants (aperÃ§u)
+Boutons (Primary/Secondary/Tertiary/Ghost, sm/md/lg, Ã©tats default/hover/active/disabled/loading), Champs (texte/OTP/tÃ©lÃ©phone/select/multi-select/date/file/photo), Cartes (dÃ©claration, centre, KPI, notification), Badges statut, Modales, Toasts, Stepper, Tag chips, Avatar, Empty states illustrÃ©s, Loaders (skeleton + spinner), Tableau de donnÃ©es (tri, filtre, pagination, export).
+
+### Iconographie
+- Style : ligne 2 px, coin arrondi 2 px.
+- BibliothÃ¨que : **Lucide** (open source).
+- Pictogrammes additionnels pour catÃ©gories : crÃ©Ã© sur mesure (12 icÃ´nes type document/objet).
+
+### AccessibilitÃ© (**RECOMMANDATION** forte)
+- Contraste AA minimum 4.5:1.
+- Navigation clavier intÃ©grale.
+- Aria-labels sur tous les contrÃ´les.
+- Taille tactile min 44Ã—44.
+- Focus visible 2 px.
+- Mode daltonien (palette secondaire alternative).
+- Voice-over / TalkBack testÃ©.
+
+---
+
+## 18 â€” Direction artistique (3 directions crÃ©atives)
+
+### Direction A â€” **Â« Institution sobre & RÃ©publique Â»**
+- **Concept** : prolongement modernisÃ© de l'identitÃ© micati existante, plateforme officielle et rassurante.
+- **Logo idÃ©e** : monogramme MR ligaturÃ© en drapeau stylisÃ© + mot-symbole MALI RETROUVÃ‰. Symbole discret : livre ouvert retournÃ© (objet) encadrÃ© par une arche (porte d'entrÃ©e).
+- **Symbole** : arche + main ouverte + fil tendu (lien entre les deux parties).
+- **Palette** : vert Mali + or + encre profonde + ivoire.
+- **Typographie** : serif institutionnel (Source Serif Pro pour titres) + sans-serif (Inter).
+- **CaractÃ¨re** : institutionnel, sobre, public, lÃ©gÃ¨rement traditionnel.
+- **Avantages** : confiance immÃ©diate, lisibilitÃ© universelle, alignement administration.
+- **InconvÃ©nients** : peut paraÃ®tre froid, peu Ã©motionnel.
+- **Pertinence** : forte pour le **site web public et l'administration**.
+- **Usage** : web public (homepage), documents officiels (PDF quittance), administration.
+- **Potentiel d'Ã©volution** : extensions sectorielles (SantÃ© RetrouvÃ©, Ã‰ducation RetrouvÃ©).
+
+### Direction B â€” **Â« Tisserand malien Â»**
+- **Concept** : mÃ©taphore du tissage (pagne, bogolan) qui relie les gens, les fils et les histoires.
+- **Logo idÃ©e** : sigle MR stylisÃ© en trame tissÃ©e, dominante ocre/bogolan.
+- **Symbole** : motifs bogolan minimalisÃ©s, fil/knot central qui unit deux extrÃ©mitÃ©s.
+- **Palette** : ocre (#C18A3D), bogolan brun (#5C3A21), blanc cassÃ© (#F4ECDF), accent vert Mali.
+- **Typographie** : sans-serif gÃ©omÃ©trique (Manrope) + display Ã  empattement (Bricolage Grotesque).
+- **CaractÃ¨re** : culturel, chaleureux, mÃ©morable, lÃ©gÃ¨rement artisanal.
+- **Avantages** : forte identitÃ© culturelle, Ã©motion positive, remarquable.
+- **InconvÃ©nients** : risque folklore perÃ§u Â« rÃ©gional Â» par urbains ; accessibilitÃ© visuelle plus complexe.
+- **Pertinence** : forte pour le **mobile et la communication grand public**.
+- **Usage** : mobile app, campagnes d'affichage, rÃ©seaux sociaux, badges centres.
+- **Potentiel d'Ã©volution** : dÃ©clinaisons rÃ©gionales (Tisserand Kayes, Tisserand Sikasso).
+
+### Direction C â€” **Â« ConnectÃ© & Signal Â»**
+- **Concept** : signal numÃ©rique entre deux personnes â€” point d'origine + point de destination. MÃ©taphore GPS social.
+- **Logo idÃ©e** : monogramme MR stylisÃ© en deux nÅ“uds reliÃ©s par une ligne pointillÃ©e ou un arc.
+- **Symbole** : deux cercles concentriques (Ã©metteur/rÃ©cepteur) + arc de connexion.
+- **Palette** : vert Mali + bleu signal (#2C7BE5) + violet accent (#7A53C8) + blanc pur.
+- **Typographie** : sans-serif gÃ©omÃ©trique (Plus Jakarta Sans).
+- **CaractÃ¨re** : tech, moderne, scalable, international.
+- **Avantages** : modernitÃ©, lisibilitÃ© mobile, compatible dashboards, accessible daltoniens.
+- **InconvÃ©nients** : moins de chaleur humaine, moins d'ancrage local.
+- **Pertinence** : forte pour l'**admin et les dashboards**.
+- **Usage** : back-office, dashboards modÃ©ration, applications partenaires.
+- **Potentiel d'Ã©volution** : extensions B2B (assureurs, banques), plateforme data.
+
+### SynthÃ¨se â€” application des directions
+| Espace | Direction recommandÃ©e |
+|---|---|
+| Site public & grand public | **B** (Tisserand malien) avec touche **A** |
+| Mobile / App | **B** |
+| Administration / Back-office | **C** |
+| Documents officiels (quittances) | **A** |
+| Campagnes / Affichage | **B** |
+
+---
+
+## 19 â€” Propositions de logos (3 concepts minimum)
+
+### Logo 1 â€” **L'arche du retour** (institutionnel)
+- **Logique visuelle** : arche inspirÃ©e des portes traditionnelles maliennes (DjennÃ©, Tombouctou). Ã€ l'intÃ©rieur, deux lignes convergentes Ã©voquent un fil tendu entre deux personnes. Le sommet porte le monogramme MR.
+- **Full** : arche verte Mali + monogramme MR centrÃ© + texte Â« MALI RETROUVÃ‰ Â» en serif institutionnel en dessous, baseline italique : *Â« Chaque document retrouve son propriÃ©taire Â»*.
+- **Compact** : arche + MR.
+- **Favicon** : arche stylisÃ©e + 2 lignes.
+- **Dark** : arche or (#F2C94C) sur fond vert Mali (#0E1B2C).
+- **Light** : arche verte Mali sur fond blanc.
+- **Document** : monochrome noir + usage filigrane.
+
+### Logo 2 â€” **Le tissage MR** (culturel)
+- **Logique visuelle** : lettres M et R composÃ©es de fils entrecroÃ©s (motif bogolan simplifiÃ©). Le contre-poinÃ§on du R forme un anneau ouvert qui se referme sur le M.
+- **Full** : sigle tissÃ© + texte Â« MALI RETROUVÃ‰ Â» en sans-serif gÃ©omÃ©trique. Baseline en bambara/franÃ§ais sous le sigle.
+- **Compact** : sigle MR tissÃ©.
+- **Favicon** : sigle plein monochrome.
+- **Dark** : sigle ocre/bogolan sur fond sombre.
+- **Light** : sigle vert Mali sur fond crÃ¨me.
+- **Document** : variante aquarelle/textile pour affiches campagnes.
+
+### Logo 3 â€” **Le signal entre deux points** (tech)
+- **Logique visuelle** : deux cercles (un vert Mali plein = Â« dÃ©clarant Â», un contour = Â« trouvÃ© Â») reliÃ©s par une trajectoire en arc. Au centre de l'arc : un point blanc = l'instant du rapprochement.
+- **Full** : sigle M+R sous les deux cercles + texte institutionnel.
+- **Compact** : deux cercles + arc.
+- **Favicon** : deux cercles + arc miniature.
+- **Dark** : signal blanc sur fond vert Mali.
+- **Light** : signal vert Mali sur fond blanc.
+- **Document** : aplat monochrome.
+
+> **DÃ‰CISION Ã€ PRENDRE** : retenir 1 des 3 logos aprÃ¨s test utilisateur (sondage rapide + A/B hero page). Budget test estimÃ© : interne, 1 semaine.
+
+---
+
+## 20 â€” Palettes de couleurs
+
+### Palette 1 â€” **RÃ©publique du Mali** (primaire, officielle)
+Vert Mali #1B9E3F, Or institutionnel #F2C94C, Encre #0E1B2C, Ivoire #F4ECDF, SuccÃ¨s #1B9E3F, Attention #F2A93B, Erreur #D6453C, Info #2C7BE5.
+
+### Palette 2 â€” **Bogolan & Chaleur** (mobile/grand public)
+Ocre #C18A3D, Bogolan brun #5C3A21, Blanc cassÃ© #F4ECDF, Vert accent #1B9E3F, Indigo nuit #1E2D4D, Sable clair #E8D9BD, Rouge terre #B0392A.
+
+### Palette 3 â€” **Signal Tech** (admin/dashboard)
+Vert Mali #1B9E3F, Bleu signal #2C7BE5, Violet accent #7A53C8, Blanc pur #FFFFFF, Slate 900 #0F172A, Slate 700 #334155, Slate 300 #CBD5E1, Slate 100 #F1F5F9.
+
+### RÃ¨gles d'usage
+- Palette 1 = base pour tous les produits.
+- Palette 2 = activation marketing mobile / affiches / campagnes.
+- Palette 3 = back-office et dashboards.
+- Contraste AA garanti pour tous les couples texte/fond.
+- Mode daltonien : variante sans dÃ©pendance rouge-vert (icÃ´nes + texte d'Ã©tat).
+
+---
+
+## 21 â€” Architecture UX/UI
+
+### Information Architecture (IA)
+
+`
+ACCUEIL
++-- J'ai perdu
+Â¦   +-- Choisir le type (12 catÃ©gories)
+Â¦   +-- DÃ©crire l'objet
+Â¦   +-- IdentitÃ© dÃ©clarant
+Â¦   +-- Confirmation
++-- J'ai trouvÃ©
+Â¦   +-- Choisir le type
+Â¦   +-- DÃ©crire l'objet
+Â¦   +-- IdentitÃ© trouveur
+Â¦   +-- Choix du mode de remise (centre / conservation)
++-- Mon espace
+Â¦   +-- DÃ©clarations actives
+Â¦   +-- Historique
+Â¦   +-- Notifications
+Â¦   +-- Demande RGPD
+Â¦   +-- ParamÃ¨tres
++-- Aide / FAQ
++-- Politique de confidentialitÃ©
++-- Ã€ propos
+
+[ADMIN â€” sous-domaine admin.maliretrouve.ml]
++-- Dashboard
++-- DÃ©clarations
++-- Rapprochements
++-- VÃ©rifications
++-- ModÃ©ration
++-- Centres partenaires
++-- Utilisateurs & rÃ´les
++-- ConformitÃ© RGPD
++-- Communication
++-- ParamÃ©trage
++-- Audit & logs
+
+[AGENT CENTRE â€” sous-domaine centre.maliretrouve.ml]
++-- Tableau de bord
++-- Stock
++-- RÃ©ception
++-- Restitution
++-- Rapports
++-- Aide
+`
+
+### Navigation
+- **Web public** : header sticky, menu burger < 768 px, breadcrumbs contextuels, footer institutionnel.
+- **Mobile (PWA)** : bottom tab bar (4 onglets : Perdre, Trouver, Espace, aide) + FAB contextuel.
+- **Admin** : sidebar collapsible, recherche globale (Ctrl+K), notifications en cloche.
+- **Centre** : navigation simplifiÃ©e, gros boutons, mode haut contraste (lieux lumineux).
+
+### Ã‰tats UI (complets)
+| Ã‰tat | DÃ©clencheur | UI |
+|---|---|---|
+| **Loading** | Attente API > 200 ms | Skeleton + spinner accessible (aria-live="polite") |
+| **Empty** | Liste vide | Illustration + CTA Â« CrÃ©er ma premiÃ¨re dÃ©claration Â» |
+| **Error** | Ã‰chec API | Toast rouge + bouton Â« RÃ©essayer Â» + lien support |
+| **Success** | Action validÃ©e | Toast vert + message + redirection |
+| **No match** | Matching sans rÃ©sultat | Â« Aucune correspondance pour le moment. Vous serez prÃ©venu(e)â€¦ Â» + suggestion Ã©largir la zone |
+| **Potential** | Score 0.5-0.85 | Bandeau attention + CTA Â« Confirmer la propriÃ©tÃ© Â» |
+| **Confirmed** | Score = 0.85 + vÃ©rif OK | Bandeau succÃ¨s + Ã©tapes suivantes numÃ©rotÃ©es |
+| **Expired** | 12 mois sans suite | Bandeau gris + texte + bouton Â« Renouveler Â» / Â« Supprimer Â» |
+| **Archived** | Dossier clÃ´turÃ© | Section dÃ©diÃ©e + action Â« TÃ©lÃ©charger la quittance Â» |
+| **Refused** | VÃ©rification Ã©chouÃ©e | Bandeau rouge + motif codifiÃ© + recours |
+| **Expired session** | InactivitÃ© > 15 min | Modal reconnexion + OTP |
+
+### Wireframes clÃ©s (description sÃ©mantique)
+- **Accueil** : hero plein Ã©cran avec titre + 2 CTA (Â« J'ai perdu Â» / Â« J'ai trouvÃ© Â»), illustration bogolan + statistiques clÃ©s (Â« 12 345 documents restituÃ©s Â»), section Â« Comment Ã§a marche Â» en 3 Ã©tapes, tÃ©moignages, carte des centres partenaires, footer institutionnel.
+- **Formulaire Â« J'ai perdu Â»** : stepper 4 Ã©tapes (Type ? Description ? IdentitÃ© ? Confirmation), barre de progression, sauvegarde locale (brouillon).
+- **Espace personnel** : liste cards empilÃ©es, filtres rapides (statut, type, date), empty state illustrÃ©.
+- **Admin Dashboard** : 4 KPI cards en haut, graphe activitÃ©, carte chaleur Mali, table des dossiers en attente.
+- **Centre â€” RÃ©ception** : scan QR au centre, formulaire court, confirmation.
+
+### AccessibilitÃ© (WCAG 2.2 AA cible)
+- Contraste = 4.5:1 (corps), = 3:1 (gros titres).
+- Lecteur d'Ã©cran : ordre DOM cohÃ©rent.
+- Navigation clavier intÃ©grale.
+- Skip links.
+- Sous-titres / transcriptions pour tout contenu audio/vidÃ©o.
+- Tests automatisÃ©s (axe, Lighthouse) + tests manuels (NVDA, VoiceOver).
+
+### Patterns de design
+- **Empty states** : illustration pleine + 1 phrase d'explication + 1 CTA.
+- **Confirmations destructrices** : modal avec double saisie (saisie du numÃ©ro de dossier).
+- **Formulaires longs** : stepper + sauvegarde brouillon localStorage.
+- **Notifications contextuelles** : bottom-sheet mobile, toast desktop.
+
+---
+
+## 22 â€” MVP (MUST / SHOULD / COULD / FUTURE)
+
+### MUST (Phase 1 â€” indispensable)
+- Formulaire Â« J'ai perdu Â» CNI (reprise micati) + passeport + permis + tÃ©lÃ©phone.
+- Formulaire Â« J'ai trouvÃ© Â» idem.
+- Authentification OTP tÃ©lÃ©phone.
+- HMAC-SHA256 sur NNI, CNI number, IMEI.
+- Moteur de matching (rÃ¨gles strictes + score simple).
+- Notifications SMS (FR).
+- Espace personnel minimal.
+- Dashboard admin (KPIs de base).
+- Don Wave (extension du module existant).
+- ConformitÃ© RGPD minimale (consentement, accÃ¨s, suppression).
+- Couverture District de Bamako + capitales rÃ©gionales (19 rÃ©gions).
+- Documentation RGPD et conditions d'utilisation.
+
+### SHOULD (Phase 2 â€” recommandÃ©)
+- VÃ©rification de propriÃ©tÃ© (questionnaire dynamique).
+- Centres partenaires : interface agent + stock virtuel.
+- CatÃ©gories complÃ¨tes (12 types).
+- Mode sombre.
+- Multilingue FR/Bambara (lecture seule).
+- Notifications email.
+- ModÃ©ration avancÃ©e.
+- Rapports exportables PDF/CSV.
+- Couverture cercles/arrondissements principaux.
+
+### COULD (Phase 3 â€” optionnel)
+- App mobile native (Android d'abord).
+- PWA offline.
+- Signature numÃ©rique de quittance.
+- VÃ©rification consulaire passeports.
+- API publique pour intÃ©gration forces de sÃ©curitÃ©.
+- USSD pour zones Ã  faible couverture.
+- Module IA d'aide Ã  la vÃ©rification (extraction ID).
+- Webhooks sortants.
+- Programme de gamification pour les trouveurs (badges, classement).
+
+### FUTURE (au-delÃ  Phase 3)
+- IntÃ©gration banques/assureurs (dÃ©claration auto).
+- Open data anonymisÃ©e pour recherche acadÃ©mique.
+- Extensions sectorielles (SantÃ© RetrouvÃ©, Ã‰ducation RetrouvÃ©).
+- Blockchain de traÃ§abilitÃ© (**HYPOTHÃˆSE** â€” pertinence Ã  Ã©tudier).
+- Module de mÃ©diation pour litiges complexes.
+- Application vocale / IVR pour non-letttrÃ©s.
+
+---
+
+## 23 â€” Roadmap
+
+### Phase 1 â€” MVP (0-6 mois) â€” Lancement District Bamako + capitales rÃ©gionales
+**Cible** : 30 000 dÃ©clarations attendues sur 6 mois (HYPOTHÃˆSE â€” Ã  calibrer avec retour micati).
+
+**M1-M2** : Specs dÃ©taillÃ©es, design system v1, identitÃ© visuelle arrÃªtÃ©e, AIPD rÃ©alisÃ©e, accord APDP.
+**M3-M4** : Module CNI (reprise micati) + 3 nouvelles catÃ©gories (passeport, permis, tÃ©lÃ©phone), matching v1, OTP, don Wave Ã©tendu.
+**M5** : Admin dashboard, modÃ©ration humaine, RGPD procÃ©dure.
+**M6** : Lancement beta, partenariats 5 mairies + 5 commissariats, campagne de com (radio + affichage).
+
+### Phase 2 â€” Scale national partiel (6-18 mois)
+**Cible** : 200 000 dÃ©clarations cumulÃ©es.
+
+**M7-M9** : 12 catÃ©gories complÃ¨tes, vÃ©rification de propriÃ©tÃ©, interface agent centre, multilingue FR/Bambara (lecture).
+**M10-M12** : Couverture cercles/arrondissements, SMS email, rapports PDF/CSV, mode sombre, PWA offline.
+**M13-M18** : API forces de sÃ©curitÃ©, webhooks, signature numÃ©rique de quittance, gamification.
+
+### Phase 3 â€” Scale national intÃ©gral (18-36 mois)
+**Cible** : 1 000 000 dÃ©clarations cumulÃ©es.
+
+**M19-M24** : App mobile native Android, USSD, Points Services en zones rurales, IA aide Ã  la vÃ©rification.
+**M25-M36** : IntÃ©grations B2B (assureurs/banques), open data, extensions sectorielles.
+
+> **DÃ‰CISION Ã€ PRENDRE** : confirmer le calendrier en fonction des contraintes budgÃ©taires et du partenariat institutionnel.
+
+---
+
+## 24 â€” Risques
+
+### Risques juridiques & conformitÃ©
+
+| Risque | Impact | AttÃ©nuation |
+|---|---|---|
+| **R-J1** Fuite de donnÃ©es personnelles | Sanctions APDP + Code pÃ©nal 2024 | Chiffrement fort, audit, AIPD, pentests |
+| **R-J2** Manque de base lÃ©gale pour traiter certaines donnÃ©es | Recours des usagers | Cadre APDP clair, consentement explicite, registre des traitements |
+| **R-J3** Usurpation d'identitÃ© via restitution frauduleuse | Atteinte Ã  la vie privÃ©e | VÃ©rification forte (questionnaire + OTP + piÃ¨ce d'identitÃ©) |
+| **R-J4** Conservation au-delÃ  de 12 mois | Non-conformitÃ© | TÃ¢che cron de purge + audit |
+
+### Risques techniques
+
+| Risque | Impact | AttÃ©nuation |
+|---|---|---|
+| **R-T1** Faux positifs matching | Frustration, perte de confiance | Mode conservateur, journalisation, recalibrage |
+| **R-T2** Faux nÃ©gatifs matching | Service inutile | Tuning progressif des pondÃ©rations |
+| **R-T3** IndisponibilitÃ© API SMS | Parcours bloquÃ©s | Multi-opÃ©rateurs (Orange + Moov + Malitel), file d'attente |
+| **R-T4** Faille XSS/CSRF sur formulaires | Vol de session | Validation cÃ´tÃ© serveur, CSP, SameSite cookies |
+| **R-T5** HameÃ§onnage via faux SMS | Usurpation de marque | Pas de lien avec ID en clair, sensibilisation, page Â« VÃ©rifier un SMS Â» |
+
+### Risques opÃ©rationnels
+
+| Risque | Impact | AttÃ©nuation |
+|---|---|---|
+| **R-O1** Volume trop important pour modÃ©ration | DÃ©lais, qualitÃ© dÃ©gradÃ©e | SLA + plafond + file de prioritÃ© |
+| **R-O2** Centre partenaire non fiable | Objets perdus ou volÃ©s | Charte, audit, formation obligatoire |
+| **R-O3** Couverture mobile insuffisante en zone rurale | Exclusion | USSD, Points Services, SMS first |
+| **R-O4** Sous-effectif admin | Retard modÃ©ration | Recrutement, formation, automatisation |
+
+### Risques business
+
+| Risque | Impact | AttÃ©nuation |
+|---|---|---|
+| **R-B1** Faible adoption | ROI nÃ©gatif | Campagne radio + bouche-Ã -oreille + partenariats forces de sÃ©curitÃ© |
+| **R-B2** Financement non pÃ©rennisÃ© | Interruption | Dons Wave + subventions + budget Ã‰tat |
+| **R-B3** Concurrence privÃ©e (assureurs) | Fragmentation | API ouverte, partenariats |
+
+### Risques sociÃ©taux
+
+| Risque | Impact | AttÃ©nuation |
+|---|---|---|
+| **R-S1** Mauvaise presse en cas d'incident | Confiance dÃ©truite | Communication transparente, gestion de crise |
+| **R-S2** Exclusion numÃ©rique | InÃ©galitÃ© d'accÃ¨s | Points Services physiques, USSD, assistance tÃ©lÃ©phonique |
+| **R-S3** RÃ©cel via la plateforme | CriminalitÃ© | VÃ©rification forte, audit, partenariats forces de sÃ©curitÃ© |
+
+---
+
+## 25 â€” Questions ouvertes
+
+| # | Question | Qui dÃ©cide | Ã‰chÃ©ance |
+|---|---|---|---|
+| Q1 | Quel ministÃ¨re/autoritÃ© porte politiquement le projet ? | Sponsor | Phase 0 |
+| Q2 | HÃ©bergement souverain ou cloud international ? | Tech + Juridique | Phase 0 |
+| Q3 | Quels opÃ©rateurs SMS pour la phase 1 ? | Tech + Commercial | M2 |
+| Q4 | Quelle langue prioritaire aprÃ¨s le franÃ§ais (bambara, songhai, peul, touareg) ? | UX + CommunautÃ©s | M3 |
+| Q5 | Quel seuil de score pour le matching Â« confirmÃ© Â» (actuellement 0.85 â€” HYPOTHÃˆSE) ? | Data + ModÃ©ration | M5 |
+| Q6 | Quels documents sont strictement interdits en dÃ©pÃ´t (armes, stupÃ©fiants) ? | Juridique + SÃ©curitÃ© | M2 |
+| Q7 | Faut-il une contrepartie financiÃ¨re pour le trouveur ? | Politique + Ã‰thique | M3 |
+| Q8 | Quel est le cadre exact des articles 322-9 Ã  322-30 du Code pÃ©nal 2024 ? | Juridique | ASAP |
+| Q9 | Quel est le coÃ»t rÃ©el d'un SMS chez Orange/Moov/Malitel ? | Commercial | M1 |
+| Q10 | Qui finance la formation des agents de centre ? | Sponsor + RH | M4 |
+
+---
+
+## 26 â€” CritÃ¨res d'acceptation
+
+### CritÃ¨res globaux
+
+- **CA-G1** Toute dÃ©claration est crÃ©Ã©e en moins de 3 minutes (mobile 3G).
+- **CA-G2** Aucune donnÃ©e sensible n'apparaÃ®t dans les logs d'erreur ou les exports.
+- **CA-G3** Le score de matching est journalisÃ© pour 100 % des calculs.
+- **CA-G4** Le dÃ©lai de rÃ©ponse Ã  une demande RGPD est = 30 jours calendaires.
+- **CA-G5** WCAG 2.2 AA validÃ© par Lighthouse + axe + test manuel.
+- **CA-G6** Compatible navigateurs modernes (Chrome, Firefox, Safari, Edge) + 2 derniÃ¨res versions majeures mobile.
+- **CA-G7** Support multilingue FR natif ; bambara ajoutÃ© en Phase 2.
+- **CA-G8** Le site est responsive 320-2560 px sans overflow horizontal.
+
+### CritÃ¨res par parcours
+
+- **CA-P2** Le parcours Â« J'ai perdu Â» est complÃ©table sans quitter le formulaire, mÃªme si l'utilisateur change d'onglet (sauvegarde localStorage).
+- **CA-P4** Le matching s'exÃ©cute en moins de 5 secondes pour 95 % des cas (P95).
+- **CA-P5** La vÃ©rification de propriÃ©tÃ© fournit au moins 2 indices exigÃ©s pour les documents d'identitÃ©.
+- **CA-P6** La quittance PDF est gÃ©nÃ©rÃ©e en moins de 10 secondes.
+- **CA-P7** L'agent de centre peut enregistrer un dÃ©pÃ´t en moins de 2 minutes (scan QR + photo + tags).
+- **CA-P8** Le tableau de bord admin charge en moins de 3 secondes (P95) avec 100 000 dÃ©clarations.
+
+### CritÃ¨res de sÃ©curitÃ©
+
+- **CA-S1** Aucune valeur NNI/CNI/IMEI en clair dans la base (HMAC-SHA256 vÃ©rifiÃ©).
+- **CA-S2** TLS 1.2+ obligatoire ; HSTS activÃ©.
+- **CA-S3** Logs immutables conservÃ©s 24 mois.
+- **CA-S4** Tests d'intrusion (pentest) rÃ©alisÃ©s avant chaque release majeure.
+- **CA-S5** Backups chiffrÃ©s, testÃ©s tous les 90 jours.
+
+### CritÃ¨res Ã©conomiques
+
+- **CA-Ã‰1** CoÃ»t SMS < 30 FCFA/message (HYPOTHÃˆSE).
+- **CA-Ã‰2** Dons Wave traÃ§ables avec reÃ§u PDF automatique.
+- **CA-Ã‰3** Aucun frais pour le citoyen.
+
+---
+
+## 18 â€” Analyse du site existant (micati.site/cni)
+
+> **OBSERVATION** = ce qui est constatÃ© sur le site.
+> **RECOMMANDATION** = ce qu'il faudrait faire pour MALI RETROUVÃ‰.
+> **HYPOTHÃˆSE** = infÃ©rence Ã  valider.
+
+### Structure & UX
+
+- **OBSERVATION** â€” Deux CTA principaux (Â« J'ai perdu ma CNI Â» / Â« J'ai trouvÃ© une CNI Â») mÃ¨nent Ã  deux formulaires quasi-symÃ©triques. Parcours linÃ©aire et court, peu d'Ã©tapes.
+- **OBSERVATION** â€” Pas d'espace personnel persistant visible (HYPOTHÃˆSE : soit absent, soit trÃ¨s minimal). Le citoyen ne peut pas suivre ses dÃ©clarations au-delÃ  du mail de confirmation.
+- **RECOMMANDATION** â€” Introduire un espace personnel dÃ¨s Phase 1 (auth OTP), avec liste des dÃ©clarations, statuts, notifications, et demande RGPD.
+
+### Formulaires
+
+- **OBSERVATION** â€” Champs collectÃ©s : NNI, CNI number, nom, tÃ©lÃ©phone, email.
+- **OBSERVATION** â€” Aucune preuve photographique exigÃ©e.
+- **RECOMMANDATION** â€” Ajouter photo optionnelle mais recommandÃ©e (signe distinctif). Ã‰tendre Ã  12 catÃ©gories (vs CNI seule).
+- **RECOMMANDATION** â€” Ã‰tape Â« consentement RGPD Â» explicite (case obligatoire).
+
+### Matching
+
+- **OBSERVATION** â€” Pas d'information publique sur un moteur de rapprochement automatique (HYPOTHÃˆSE : rapprochement probablement manuel ou trÃ¨s basique).
+- **RECOMMANDATION** â€” Mettre en place un moteur de matching structurÃ© avec score + journalisation + audit APDP.
+
+### ConfidentialitÃ©
+
+- **OBSERVATION** â€” Utilisation de HMAC-SHA256 pour le NNI (FAIT, conforme Ã  la Loi 2013-015).
+- **OBSERVATION** â€” Politique de confidentialitÃ© prÃ©sente mais minimaliste.
+- **RECOMMANDATION** â€” Politique de confidentialitÃ© Ã©toffÃ©e, registre des traitements public, page Â« Mes droits RGPD Â» dÃ©taillÃ©e.
+
+### RÃ©tention
+
+- **OBSERVATION** â€” Politique de rÃ©tention de 12 mois (FAIT, alignÃ©e avec APDP).
+- **RECOMMANDATION** â€” Documenter le processus de purge, proposer un export des donnÃ©es Ã  la demande.
+
+### Don Wave
+
+- **OBSERVATION** â€” Lien de don Wave mobile money prÃ©sent (FAIT).
+- **RECOMMANDATION** â€” IntÃ©grer un module don traÃ§able avec reÃ§u automatique, possiblement Ã©tendu Ã  Orange Money / Moov Money.
+
+### Couverture fonctionnelle
+
+- **OBSERVATION** â€” Couvre uniquement la CNI (FAIT).
+- **RECOMMANDATION** â€” Ã‰largir Ã  12 catÃ©gories dÃ¨s Phase 1 (cf. liste Section 03).
+
+### Couverture gÃ©ographique
+
+- **OBSERVATION** â€” Couvre apparemment tout le Mali national (le formulaire ne limite pas gÃ©ographiquement â€” HYPOTHÃˆSE).
+- **RECOMMANDATION** â€” Introduire un rayon de recherche structurÃ© (commune, cercle, rÃ©gion) et un rÃ©seau de centres partenaires physiques.
+
+### ModÃ©ration
+
+- **OBSERVATION** â€” Aucun back-office public / accessible publiquement (HYPOTHÃˆSE).
+- **RECOMMANDATION** â€” Construire un back-office admin avec modÃ©ration humaine, journalisation, KPIs.
+
+### IdentitÃ© visuelle
+
+- **OBSERVATION** â€” IdentitÃ© sobre, aux couleurs du drapeau malien (vert/or), quelques Ã©lÃ©ments dÃ©coratifs discrets (HYPOTHÃˆSE d'aprÃ¨s observation publique).
+- **RECOMMANDATION** â€” Moderniser pour la nouvelle marque MALI RETROUVÃ‰ en capitalisant sur la confiance existante (palette 1 RÃ©publique du Mali, Direction B Â« Tisserand Â» pour la chaleur humaine).
+
+### Points forts Ã  conserver
+
+- Service dÃ©jÃ  fonctionnel, base existante.
+- Confiance acquise des utilisateurs (HYPOTHÃˆSE).
+- ConformitÃ© HMAC-SHA256 dÃ©jÃ  en place.
+- PrÃ©sence du don Wave (engagement citoyen).
+
+### Points faibles Ã  corriger
+
+- Pas d'espace personnel.
+- Pas de suivi post-dÃ©claration.
+- Pas de matching automatisÃ© visible.
+- Pas de back-office modÃ©ration apparent.
+- Couverture limitÃ©e Ã  la CNI.
+- Pas de rÃ©seau de centres partenaires physiques.
+
+---
+
+## SynthÃ¨se exÃ©cutive
+
+**MALI RETROUVÃ‰** peut Ãªtre lancÃ© en **6 mois** sur le pÃ©rimÃ¨tre Phase 1 (CNI + passeport + permis + tÃ©lÃ©phone, District de Bamako + capitales rÃ©gionales, SMS OTP, matching v1, dashboard admin) en rÃ©utilisant l'infrastructure micati.site/cni.
+
+**Conditions de succÃ¨s** :
+1. Mandat officiel obtenu (POINT Ã€ VÃ‰RIFIER Q1).
+2. Cadre juridique APDP validÃ© (POINT Ã€ VÃ‰RIFIER Q8).
+3. 3-5 partenariats de centres pilotes signÃ©s avant M4.
+4. IdentitÃ© visuelle arrÃªtÃ©e (Direction B recommandÃ©e) â€” **DÃ‰CISION Ã€ PRENDRE**.
+5. Budget de communication Phase 1 sÃ©curisÃ©.
+
+**Risque principal** : la confidentialitÃ© des donnÃ©es personnelles. Toute l'architecture doit Ãªtre conÃ§ue privacy-by-design dÃ¨s le M1.
+
+**Levier principal** : la confiance dÃ©jÃ  existante autour de micati.site/cni, Ã  transformer en marque nationale par Ã©largissement fonctionnel et gÃ©ographique progressif.
